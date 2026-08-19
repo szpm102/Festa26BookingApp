@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="topbar">
+  <div><strong>{{ cfg.EVENT_NAME }}</strong> &mdash; Ticket Check-in</div>
+  <div>
+    <a class="btn small secondary" href="{{ url_for('admin.dashboard') }}">Back to dashboard</a>
+  </div>
+</div>
+
+<div class="container" style="max-width:500px;">
+  <div class="card">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="msg {{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% if booking.payment_status != 'paid' %}
+      <div class="checkin-banner checkin-banner-bad">
+        <div class="checkin-banner-icon">&#9888;&#65039;</div>
+        <div class="checkin-banner-title">NOT PAID</div>
+        <div class="checkin-banner-sub">This booking isn't marked as paid. Do not let this ticket in &mdash; check with the committee first.</div>
+      </div>
+    {% elif seat.checked_in_at and just_checked_in %}
+      <div class="checkin-banner checkin-banner-good">
+        <div class="checkin-banner-icon">&#9989;</div>
+        <div class="checkin-banner-title">CHECKED IN</div>
+        <div class="checkin-banner-sub">Seat {{ seat.label }} at {{ seat.checked_in_at.strftime("%H:%M") }}.</div>
+      </div>
+    {% elif seat.checked_in_at %}
+      <div class="checkin-banner checkin-banner-bad">
+        <div class="checkin-banner-icon">&#9888;&#65039;</div>
+        <div class="checkin-banner-title">ALREADY SCANNED</div>
+        <div class="checkin-banner-sub">
+          Seat {{ seat.label }} was already checked in at {{ seat.checked_in_at.strftime("%d %b, %H:%M") }}.
+          Someone may be trying to use a duplicate or shared ticket &mdash; verify identity before letting them in.
+        </div>
+      </div>
+    {% endif %}
+
+    <h2 style="margin-top:0;">Seat {{ seat.label }}</h2>
+    <table style="width:100%; margin-bottom:16px;">
+      <tr><td style="color:var(--grey-light);">Booking ref</td><td><a href="{{ url_for('admin.booking_overview', reference=booking.reference) }}">{{ booking.reference }}</a></td></tr>
+      <tr><td style="color:var(--grey-light);">Name</td><td>{{ booking.attendee_name }}</td></tr>
+      <tr><td style="color:var(--grey-light);">Email</td><td>{{ booking.email }}</td></tr>
+      <tr><td style="color:var(--grey-light);">Amount (whole booking)</td><td>&euro;{{ "%.2f"|format(booking.amount_total_eur) }} ({{ booking.payment_method }})</td></tr>
+      <tr><td style="color:var(--grey-light);">Payment status</td><td><span class="badge {{ booking.payment_status }}">{{ booking.payment_status }}</span></td></tr>
+    </table>
+
+    {% if booking.payment_status == 'paid' and not seat.checked_in_at %}
+      <form method="post" action="{{ url_for('admin.checkin_confirm', token=seat.checkin_token) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn">Mark Checked In</button>
+      </form>
+    {% endif %}
+
+    {% if seat.checked_in_at and can_reset %}
+      <form method="post" action="{{ url_for('admin.checkin_reset', token=seat.checkin_token) }}"
+            onsubmit="return confirm('Reset check-in for seat {{ seat.label }}? It will be scannable again.');"
+            style="margin-top:10px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn secondary">Reset Check-in (superadmin)</button>
+      </form>
+    {% endif %}
+
+    {% if booking.seats|length > 1 %}
+    <div style="margin-top:22px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1);">
+      <p style="color:var(--grey-light); font-size:0.85rem; margin:0 0 8px;">
+        Also in this booking ({{ booking.seats|length }} seats total):
+      </p>
+      <table style="width:100%;">
+        {% for s in booking.seats|sort(attribute='label') if s.id != seat.id %}
+        <tr>
+          <td>{{ s.label }}</td>
+          <td>{% if s.checked_in_at %}<span class="badge paid">checked in {{ s.checked_in_at.strftime("%H:%M") }}</span>{% else %}<span class="badge pending">not checked in</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

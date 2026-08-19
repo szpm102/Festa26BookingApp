@@ -14,7 +14,45 @@
         <tr><td style="color:#8a8a8a;padding:4px 0;">Location</td><td>{{ cfg.EVENT_LOCATION }}</td></tr>
         <tr><td style="color:#8a8a8a;padding:4px 0;">Date &amp; time</td><td>{{ cfg.EVENT_DATE_TEXT }}, {{ cfg.EVENT_TIME_TEXT }}</td></tr>
       </table>
+
+      {% if tickets|length > 1 %}
+      <p style="color:#8a8a8a;font-size:0.85rem;">
+        Each seat has its own QR code below, so your group can be checked in separately if you don't
+        all arrive at the same time.
+      </p>
+      {% endif %}
+
+      {% for t in tickets %}
+      <div style="text-align:center; margin:24px 0; padding-top:20px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:1.1rem; font-weight:800; color:#ff3b3b; margin-bottom:8px;">Seat {{ t.seat.label }}</div>
+        <img src="cid:{{ t.qr_cid }}" alt="QR code for seat {{ t.seat.label }}" width="160" height="160" style="background:#fff;padding:10px;border-radius:8px;">
+        <p style="color:#8a8a8a;font-size:0.8rem;margin-top:8px;">Show this QR code at the entrance to check in seat {{ t.seat.label }}.</p>
+        {% if t.seat.wallet_google_url or t.seat.wallet_apple_pass_b64 %}
+        <div style="margin-top:10px;">
+          {% if t.seat.wallet_apple_pass_b64 %}
+          <a href="{{ cfg.BASE_URL }}/ticket/{{ booking.access_token }}/wallet/apple/{{ t.seat.id }}"
+             style="display:inline-block;margin:4px;padding:9px 16px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:bold;">
+             &#63743; Add to Apple Wallet
+          </a>
+          {% endif %}
+          {% if t.seat.wallet_google_url %}
+          <a href="{{ cfg.BASE_URL }}/ticket/{{ booking.access_token }}/wallet/google/{{ t.seat.id }}"
+             style="display:inline-block;margin:4px;padding:9px 16px;background:#1a73e8;color:#fff;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:bold;">
+             G Add to Google Wallet
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <p style="color:#8a8a8a;font-size:0.85rem;">
+        A PDF with all your ticket(s) is attached to this email - save it to your phone or print it,
+        and bring it (or this email) with you on the night. Lost the attachment? Download it again
+        anytime: <a href="{{ cfg.BASE_URL }}/ticket/{{ booking.access_token }}" style="color:#ff3b3b;">{{ cfg.BASE_URL }}/ticket/{{ booking.access_token }}</a>
+      </p>
       <p style="color:#8a8a8a;font-size:0.85rem;">Please keep this email as proof of your booking. Your seat number(s) will be marked at the venue.</p>
+      <p style="color:#666;font-size:0.75rem;">{{ cfg.REFUND_POLICY_TEXT }} {{ cfg.PRIVACY_NOTICE_TEXT }}</p>
       <p style="color:#8a8a8a;font-size:0.85rem;">{{ cfg.EVENT_ORGANISERS }}</p>
     </div>
   </div>

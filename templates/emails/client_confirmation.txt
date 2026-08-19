@@ -1,0 +1,28 @@
+{{ cfg.EVENT_NAME }}
+{{ cfg.EVENT_SUBTITLE }}
+
+Dear {{ booking.attendee_name }},
+
+Your seat booking is confirmed.
+
+Reference:     {{ booking.reference }}
+Seat(s):       {{ booking.seat_labels() }}
+Amount paid:   EUR {{ "%.2f"|format(booking.amount_total_eur) }}
+Location:      {{ cfg.EVENT_LOCATION }}
+Date & time:   {{ cfg.EVENT_DATE_TEXT }}, {{ cfg.EVENT_TIME_TEXT }}
+
+Each seat has its own QR code (see the attached PDF, one page per seat), so
+your group can be checked in separately if you don't all arrive together.
+{% for t in tickets %}
+Seat {{ t.seat.label }}:{% if t.seat.wallet_apple_pass_b64 %}
+  Add to Apple Wallet:  {{ cfg.BASE_URL }}/ticket/{{ booking.access_token }}/wallet/apple/{{ t.seat.id }}{% endif %}{% if t.seat.wallet_google_url %}
+  Add to Google Wallet: {{ cfg.BASE_URL }}/ticket/{{ booking.access_token }}/wallet/google/{{ t.seat.id }}{% endif %}
+{% endfor %}
+Download the full PDF (all seats) again anytime:
+{{ cfg.BASE_URL }}/ticket/{{ booking.access_token }}
+
+Please keep this email as proof of your booking.
+
+{{ cfg.REFUND_POLICY_TEXT }} {{ cfg.PRIVACY_NOTICE_TEXT }}
+
+{{ cfg.EVENT_ORGANISERS }}

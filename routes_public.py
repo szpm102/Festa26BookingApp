@@ -1,12 +1,15 @@
+import io
 import uuid
 from datetime import datetime
 
-from flask import Blueprint, render_template, session, jsonify, request, current_app
+from flask import Blueprint, render_template, session, jsonify, request, current_app, send_file, abort, redirect
 
-from extensions import db, csrf
+from extensions import db, csrf, limiter
 from models import Seat, Booking, SeatStatus, PaymentMethod, PaymentStatus
 from seats import sweep_expired_holds, release_seats
 import payments
+import ticketing
+import wallet
 
 public_bp = Blueprint("public", __name__)
 csrf.exempt(public_bp)
@@ -33,6 +36,7 @@ def index():
 
 
 @public_bp.route("/booking/checkout", methods=["POST"])
+@limiter.limit("10 per minute")
 def checkout():
     """Create a Stripe Checkout session for the seats currently held by this
     browser session."""
@@ -92,6 +96,60 @@ def booking_success():
         email=email,
         amount=amount,
     )
+
+
+@public_bp.route("/ticket/<token>")
+def download_ticket(token):
+    """Let a guest re-download their combined PDF ticket (all seats) using
+    the private access token from their confirmation email - no login
+    needed, the token is the key."""
+    booking = Booking.query.filter_by(access_token=token).first()
+    if not booking or booking.payment_status != PaymentStatus.PAID:
+        abort(404)
+
+    seat_qr_pairs = []
+    for seat in sorted(booking.seats, key=lambda s: s.label):
+        if not seat.checkin_token:
+            seat.checkin_token = ticketing.generate_checkin_token()
+            db.session.commit()
+        checkin_url = f"{current_app.config['BASE_URL']}/admin/checkin/{seat.checkin_token}"
+        seat_qr_pairs.append((seat, ticketing.build_qr_png(checkin_url)))
+
+    pdf_bytes = ticketing.build_ticket_pdf(booking, current_app.config, seat_qr_pairs)
+
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        as_attachment=True,
+        download_name=f"ticket-{booking.reference}.pdf",
+        mimetype="application/pdf",
+    )
+
+
+@public_bp.route("/ticket/<token>/wallet/apple/<int:seat_id>")
+def download_apple_wallet(token, seat_id):
+    booking = Booking.query.filter_by(access_token=token).first()
+    if not booking or booking.payment_status != PaymentStatus.PAID:
+        abort(404)
+    seat = next((s for s in booking.seats if s.id == seat_id), None)
+    if not seat or not seat.wallet_apple_pass_b64:
+        abort(404)
+    return send_file(
+        io.BytesIO(wallet.decode_apple_pass(seat.wallet_apple_pass_b64)),
+        as_attachment=True,
+        download_name=f"ticket-{booking.reference}-{seat.label}.pkpass",
+        mimetype="application/vnd.apple.pkpass",
+    )
+
+
+@public_bp.route("/ticket/<token>/wallet/google/<int:seat_id>")
+def redirect_google_wallet(token, seat_id):
+    booking = Booking.query.filter_by(access_token=token).first()
+    if not booking or booking.payment_status != PaymentStatus.PAID:
+        abort(404)
+    seat = next((s for s in booking.seats if s.id == seat_id), None)
+    if not seat or not seat.wallet_google_url:
+        abort(404)
+    return redirect(seat.wallet_google_url)
 
 
 @public_bp.route("/booking/cancelled")

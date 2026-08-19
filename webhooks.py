@@ -6,6 +6,7 @@ from seats import confirm_seats_for_booking
 from utils import generate_reference
 import payments
 import emailer
+import ticketing
 
 webhooks_bp = Blueprint("webhooks", __name__)
 csrf.exempt(webhooks_bp)
@@ -52,6 +53,7 @@ def _fulfil_checkout(checkout_session):
         payment_status=PaymentStatus.PAID,
         stripe_session_id=checkout_session["id"],
         created_by_admin=False,
+        access_token=ticketing.generate_checkin_token(),
     )
     db.session.add(booking)
     db.session.commit()

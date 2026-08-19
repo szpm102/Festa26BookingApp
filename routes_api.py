@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request, session, current_app
 
 from models import Seat, SeatStatus
 from seats import sweep_expired_holds, hold_seats, release_seats
-from extensions import csrf
+from extensions import csrf, limiter
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 csrf.exempt(api_bp)
@@ -42,6 +42,7 @@ def list_seats():
 
 
 @api_bp.route("/hold", methods=["POST"])
+@limiter.limit("20 per minute")
 def hold():
     sweep_expired_holds()
     sid = session["sid"]

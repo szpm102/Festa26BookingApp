@@ -4,12 +4,20 @@
 <div class="topbar">
   <div><strong>{{ cfg.EVENT_NAME }}</strong> &mdash; Admin</div>
   <div>
+    {% if current_user.is_superadmin %}
+    <a class="btn small secondary" href="{{ url_for('admin.manage_admins') }}">Manage admins</a>
+    {% endif %}
     <a class="btn small secondary" href="{{ url_for('admin.report') }}">Download report (.xlsx)</a>
     <a class="btn small secondary" href="{{ url_for('admin.logout') }}">Log out</a>
   </div>
 </div>
 
 <div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="msg {{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
   <div class="stat-grid">
     <div class="stat"><div class="num">{{ counts.total }}</div><div class="lbl">Total seats</div></div>
     <div class="stat"><div class="num" style="color:var(--available-hover)">{{ counts.available }}</div><div class="lbl">Available</div></div>
@@ -17,6 +25,22 @@
     <div class="stat"><div class="num">{{ counts.booked }}</div><div class="lbl">Booked</div></div>
     <div class="stat"><div class="num" style="color:var(--grey-light)">{{ counts.disabled }}</div><div class="lbl">Disabled</div></div>
     <div class="stat"><div class="num" style="color:var(--available-hover)">&euro;{{ "%.2f"|format(revenue) }}</div><div class="lbl">Revenue collected</div></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Ticket check-in</h2>
+    <p style="color:var(--grey-light);">
+      Scan a guest's QR code with your phone's camera app &mdash; it opens the check-in page directly
+      (you'll be asked to log in first if needed). Or look one up here by booking reference.
+    </p>
+    <form method="post" action="{{ url_for('admin.checkin_lookup') }}" style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div style="flex:1; min-width:200px;">
+        <label for="checkin-code" style="margin:0 0 4px;">Booking reference</label>
+        <input type="text" id="checkin-code" name="code" placeholder="e.g. FW-AB12CD">
+      </div>
+      <button type="submit" class="btn">Look up</button>
+    </form>
   </div>
 
   <div class="card">
@@ -45,18 +69,20 @@
     <h2 style="margin-top:0;">Bookings</h2>
     <table>
       <thead>
-        <tr><th>Ref</th><th>Name</th><th>Email</th><th>Seats</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th></th></tr>
+        <tr><th>Ref</th><th>Name</th><th>Email</th><th>Seats</th><th>Amount</th><th>Method</th><th>Status</th><th>Checked in</th><th>Date</th><th></th></tr>
       </thead>
       <tbody>
         {% for b in bookings %}
+        {% set checked_in, total = b.checkin_summary() %}
         <tr>
-          <td>{{ b.reference }}</td>
+          <td><a href="{{ url_for('admin.booking_overview', reference=b.reference) }}">{{ b.reference }}</a></td>
           <td>{{ b.attendee_name }}</td>
           <td>{{ b.email }}</td>
           <td>{{ b.seat_labels() }}</td>
           <td>&euro;{{ "%.2f"|format(b.amount_total_eur) }}</td>
           <td>{{ b.payment_method }}</td>
           <td><span class="badge {{ b.payment_status }}">{{ b.payment_status }}</span></td>
+          <td>{% if checked_in == total and total > 0 %}<span class="badge paid">{{ checked_in }}/{{ total }}</span>{% elif checked_in > 0 %}<span class="badge pending">{{ checked_in }}/{{ total }}</span>{% else %}{{ checked_in }}/{{ total }}{% endif %}</td>
           <td>{{ b.created_at.strftime("%d %b %H:%M") if b.created_at else "" }}</td>
           <td>
             {% if b.payment_status != 'cancelled' %}
@@ -65,7 +91,7 @@
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="9" style="text-align:center;color:var(--grey-light);">No bookings yet.</td></tr>
+        <tr><td colspan="10" style="text-align:center;color:var(--grey-light);">No bookings yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>

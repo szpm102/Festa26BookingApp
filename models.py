@@ -38,6 +38,18 @@ class Seat(db.Model):
 
     booking_id = db.Column(db.Integer, db.ForeignKey("bookings.id"), nullable=True)
 
+    # Each seat has its own door-check-in QR code, so a group booking multiple
+    # seats can arrive and be checked in separately without false "already
+    # scanned" warnings.
+    checkin_token = db.Column(db.String(64), unique=True, nullable=True)
+    checked_in_at = db.Column(db.DateTime, nullable=True)
+
+    # WalletWallet.dev pass for this individual seat, cached here so
+    # re-downloads don't depend on that third-party service staying up.
+    wallet_serial = db.Column(db.String(64), nullable=True)
+    wallet_google_url = db.Column(db.Text, nullable=True)
+    wallet_apple_pass_b64 = db.Column(db.Text, nullable=True)
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -69,10 +81,19 @@ class Booking(db.Model):
     created_by_admin = db.Column(db.Boolean, default=False)
     notes = db.Column(db.String(255), nullable=True)
 
+    # Lets a guest re-download their combined PDF ticket (all seats) anytime -
+    # separate from each seat's own door-check-in token below.
+    access_token = db.Column(db.String(64), unique=True, nullable=True)
+
     seats = db.relationship("Seat", backref="booking", lazy=True)
 
     def seat_labels(self):
         return ", ".join(sorted(s.label for s in self.seats))
+
+    def checkin_summary(self):
+        total = len(self.seats)
+        checked_in = sum(1 for s in self.seats if s.checked_in_at)
+        return checked_in, total
 
 
 class Admin(UserMixin, db.Model):
@@ -81,3 +102,6 @@ class Admin(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
+    # Only superadmins can reset a ticket's check-in status (e.g. after testing
+    # scans before the event) - regular door-staff accounts cannot.
+    is_superadmin = db.Column(db.Boolean, nullable=False, default=False)

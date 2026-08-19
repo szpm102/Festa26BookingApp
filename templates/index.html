@@ -67,6 +67,74 @@
   </div>
 </section>
 
+<section class="site-sketch-section">
+  <div class="programme-inner">
+    <div class="programme-header">
+      <div class="programme-eyebrow">The Real Location</div>
+      <h2 class="programme-title">Where You'll Be Sitting</h2>
+      <div class="programme-sub">A sketch of Andrijiet Street, Munxar &mdash; based on the actual site</div>
+    </div>
+    <div class="sketch-card">
+      <svg viewBox="0 130 900 300" class="sketch-svg" role="img" aria-label="Sketch of a stretch of Andrijiet Street showing houses on one side, the fireworks field on the other, and the seating zone on the closed-off road">
+        <defs>
+          <pattern id="cropHatch" width="14" height="14" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
+            <rect width="14" height="14" fill="#1c3a1e"></rect>
+            <line x1="0" y1="0" x2="0" y2="14" stroke="#2f5a33" stroke-width="4"></line>
+          </pattern>
+        </defs>
+
+        <rect x="0" y="0" width="900" height="560" fill="#170d0b"></rect>
+
+        <!-- Fields (east side - fireworks launch) -->
+        <path d="M205,9 225,181 255,361 285,551 900,551 900,9 Z" fill="url(#cropHatch)"></path>
+
+        <!-- Houses (west side) -->
+        <path d="M135,9 155,181 185,361 215,551 0,551 0,9 Z" fill="#241512"></path>
+        <g class="sketch-house-block">
+          <rect x="8" y="27" width="70" height="81" class="sketch-house-body"></rect>
+          <polygon points="4,27 43,9 82,27" class="sketch-house-roof"></polygon>
+          <rect x="8" y="126" width="80" height="99" class="sketch-house-body"></rect>
+          <polygon points="4,126 48,107 92,126" class="sketch-house-roof"></polygon>
+          <rect x="6" y="244" width="90" height="108" class="sketch-house-body"></rect>
+          <polygon points="2,244 51,222 100,244" class="sketch-house-roof"></polygon>
+        </g>
+
+        <!-- Road -->
+        <polygon points="135,9 155,181 185,361 215,551 285,551 255,361 225,181 205,9" class="sketch-road"></polygon>
+        <line x1="170" y1="13" x2="240" y2="547" class="sketch-road-line" stroke-dasharray="1 1"></line>
+
+        <!-- Seating zone highlighted on the road, roughly where the site opens up -->
+        <polygon points="164,240 234,240 260,424 190,424" class="sketch-seating-zone"></polygon>
+
+        <!-- This stretch of Andrijiet Street itself (Damasku and Triq Ta' Rinota
+             are separate, parallel streets - not shown, to avoid implying a
+             junction that doesn't exist here) -->
+        <text x="196" y="150" class="sketch-street-label" transform="rotate(-4 196 150)">TRIQ ANDRIJIET</text>
+        <text x="220" y="343" class="sketch-street-label" transform="rotate(-4 220 343)">TRIQ ANDRIJIET</text>
+
+        <!-- Labels -->
+        <text x="590" y="170" class="sketch-zone-label">FIELDS</text>
+        <text x="590" y="190" class="sketch-zone-label-sm">Fireworks launch area</text>
+        <text x="60" y="400" class="sketch-zone-label">HOUSES</text>
+
+        <!-- Approximate launch point marker, filling the open field -->
+        <circle cx="640" cy="290" r="34" class="sketch-launch-ring"></circle>
+        <text x="640" y="298" class="sketch-launch-icon" text-anchor="middle">&#127878;</text>
+        <text x="640" y="345" class="sketch-zone-label-sm" text-anchor="middle">Approx. launch point</text>
+
+        <line x1="197" y1="332" x2="120" y2="298" class="sketch-leader"></line>
+        <text x="112" y="291" class="sketch-seating-label" text-anchor="end">SEATING ZONE</text>
+        <text x="112" y="307" class="sketch-seating-label-sm" text-anchor="end">300 seats, 5 rows</text>
+      </svg>
+      <p class="sketch-note">
+        Illustrative sketch, not surveyed to exact scale. Andrijiet Street closes to traffic for the
+        event; chairs are set out directly on the road, backing onto the houses and facing the open
+        fields where Ten2 will fire the display.
+      </p>
+    </div>
+  </div>
+</section>
+
 <div class="container">
   <div class="card">
     <div id="flash-area"></div>
@@ -74,7 +142,10 @@
     <p style="color:var(--grey-light);">
       Tap a seat to hold it for {{ hold_minutes }} minutes while you complete your booking
       (&euro;{{ "%.2f"|format(seat_price) }} per seat). Seats already taken are shown in black.
+      Andrijiet Street will be closed to traffic for the event: seating is placed directly on the
+      road, with row A nearest the fireworks field and row E furthest back, nearest the houses.
     </p>
+    <p id="map-scale-caption" style="color:var(--grey-light); font-size:0.8rem; margin-top:-8px;"></p>
 
     <div class="legend">
       <span><i class="swatch sw-available"></i> Available</span>
@@ -100,7 +171,10 @@
       <input type="email" id="email" required>
       <label for="phone">Phone (optional)</label>
       <input type="tel" id="phone">
-      <div style="margin-top:20px;">
+      <p style="color:var(--grey-light); font-size:0.8rem; margin-top:16px;">
+        {{ cfg.REFUND_POLICY_TEXT }} {{ cfg.PRIVACY_NOTICE_TEXT }}
+      </p>
+      <div style="margin-top:12px;">
         <button type="submit" class="btn" id="pay-btn" disabled>Proceed to Payment</button>
       </div>
     </form>

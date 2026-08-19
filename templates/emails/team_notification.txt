@@ -1,0 +1,12 @@
+New Fireworks Seat Booking
+
+Reference:      {{ booking.reference }}
+Name:           {{ booking.attendee_name }}
+Email:          {{ booking.email }}
+Phone:          {{ booking.phone or "-" }}
+Seat(s):        {{ booking.seat_labels() }}
+Amount:         EUR {{ "%.2f"|format(booking.amount_total_eur) }}
+Payment method: {{ booking.payment_method }}{% if booking.created_by_admin %} (entered by admin){% endif %}
+Booked at:      {{ booking.created_at.strftime("%d %b %Y %H:%M") if booking.created_at else "" }}
+{% if booking.notes %}Notes:          {{ booking.notes }}
+{% endif %}

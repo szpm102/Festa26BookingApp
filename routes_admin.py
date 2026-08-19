@@ -1,21 +1,38 @@
+from datetime import datetime
+from functools import wraps
+
 from flask import (
     Blueprint, render_template, redirect, url_for, request, flash, jsonify,
     send_file, current_app,
 )
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from extensions import db, csrf
+from extensions import db, csrf, limiter
 from models import Seat, Booking, Admin, SeatStatus, PaymentMethod, PaymentStatus
 from seats import disable_seats, enable_seats, confirm_seats_for_booking, cancel_booking, sweep_expired_holds
 from utils import generate_reference
 from reports import build_bookings_report
 import emailer
+import ticketing
+import wallet
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
+def superadmin_required(view):
+    @wraps(view)
+    @login_required
+    def wrapped(*args, **kwargs):
+        if not current_user.is_superadmin:
+            flash("Only a superadmin can do that.", "error")
+            return redirect(url_for("admin.dashboard"))
+        return view(*args, **kwargs)
+    return wrapped
+
+
 @admin_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("admin.dashboard"))
@@ -128,6 +145,7 @@ def api_book_cash():
         payment_status=PaymentStatus.PAID,
         created_by_admin=True,
         notes=data.get("notes") or None,
+        access_token=ticketing.generate_checkin_token(),
     )
     db.session.add(booking)
     db.session.commit()
@@ -143,10 +161,90 @@ def api_book_cash():
 @login_required
 def api_cancel_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
+    seats = list(booking.seats)
     cancel_booking(booking)
     booking.payment_status = PaymentStatus.CANCELLED
     db.session.commit()
+    for seat in seats:
+        wallet.revoke_wallet_pass(seat.wallet_serial, current_app.config)
     return jsonify({"ok": True})
+
+
+@admin_bp.route("/booking/<reference>")
+@login_required
+def booking_overview(reference):
+    """Manual lookup by booking reference - shows every seat in the booking
+    with its own check-in status, for group bookings where scanning each
+    seat's QR individually isn't convenient."""
+    booking = Booking.query.filter_by(reference=reference.strip().upper()).first()
+    if not booking:
+        flash(f"No booking found for '{reference}'.", "error")
+        return redirect(url_for("admin.dashboard"))
+    return render_template(
+        "admin/booking.html", cfg=current_app.config, booking=booking,
+        can_reset=current_user.is_superadmin,
+    )
+
+
+@admin_bp.route("/checkin/<token>", methods=["GET"])
+@login_required
+def checkin(token):
+    seat = Seat.query.filter_by(checkin_token=token).first()
+    if not seat:
+        flash(f"No ticket found for '{token}'.", "error")
+        return redirect(url_for("admin.dashboard"))
+    just_checked_in = request.args.get("just_now") == "1"
+    return render_template(
+        "admin/checkin.html", cfg=current_app.config, seat=seat, booking=seat.booking,
+        just_checked_in=just_checked_in, can_reset=current_user.is_superadmin,
+    )
+
+
+@admin_bp.route("/checkin/<token>", methods=["POST"])
+@login_required
+def checkin_confirm(token):
+    seat = Seat.query.filter_by(checkin_token=token).first()
+    if not seat:
+        flash(f"No ticket found for '{token}'.", "error")
+        return redirect(url_for("admin.dashboard"))
+
+    just_now = False
+    if seat.booking and seat.booking.payment_status == PaymentStatus.PAID and not seat.checked_in_at:
+        seat.checked_in_at = datetime.utcnow()
+        db.session.commit()
+        just_now = True
+
+    return redirect(url_for("admin.checkin", token=token, just_now="1" if just_now else None))
+
+
+@admin_bp.route("/checkin/<token>/reset", methods=["POST"])
+@login_required
+def checkin_reset(token):
+    if not current_user.is_superadmin:
+        flash("Only a superadmin can reset a ticket's check-in status.", "error")
+        return redirect(url_for("admin.checkin", token=token))
+
+    seat = Seat.query.filter_by(checkin_token=token).first()
+    if not seat:
+        flash(f"No ticket found for '{token}'.", "error")
+        return redirect(url_for("admin.dashboard"))
+
+    seat.checked_in_at = None
+    db.session.commit()
+    flash(f"Check-in reset for seat {seat.label} - it can be scanned in again.", "success")
+    return redirect(url_for("admin.checkin", token=token))
+
+
+@admin_bp.route("/checkin-lookup", methods=["POST"])
+@login_required
+def checkin_lookup():
+    code = (request.form.get("code") or "").strip()
+    if not code:
+        flash("Enter a booking reference or scan a ticket QR code.", "error")
+        return redirect(url_for("admin.dashboard"))
+    if Seat.query.filter_by(checkin_token=code).first():
+        return redirect(url_for("admin.checkin", token=code))
+    return redirect(url_for("admin.booking_overview", reference=code))
 
 
 @admin_bp.route("/report.xlsx")
@@ -160,3 +258,47 @@ def report():
         download_name="fireworks-bookings-report.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
+
+
+@admin_bp.route("/admins")
+@superadmin_required
+def manage_admins():
+    admins = Admin.query.order_by(Admin.email).all()
+    return render_template("admin/admins.html", cfg=current_app.config, admins=admins)
+
+
+@admin_bp.route("/admins", methods=["POST"])
+@superadmin_required
+def create_admin():
+    email = (request.form.get("email") or "").strip().lower()
+    password = request.form.get("password") or ""
+    is_superadmin = request.form.get("is_superadmin") == "on"
+
+    if not email or not password:
+        flash("Email and password are required.", "error")
+    elif len(password) < 8:
+        flash("Password must be at least 8 characters.", "error")
+    elif Admin.query.filter_by(email=email).first():
+        flash(f"An admin with email {email} already exists.", "error")
+    else:
+        admin = Admin(email=email, password_hash=generate_password_hash(password), is_superadmin=is_superadmin)
+        db.session.add(admin)
+        db.session.commit()
+        flash(f"Admin account created: {email}", "success")
+
+    return redirect(url_for("admin.manage_admins"))
+
+
+@admin_bp.route("/admins/<int:admin_id>/delete", methods=["POST"])
+@superadmin_required
+def delete_admin(admin_id):
+    target = Admin.query.get_or_404(admin_id)
+    if target.id == current_user.id:
+        flash("You can't delete your own account.", "error")
+    elif target.is_superadmin and Admin.query.filter_by(is_superadmin=True).count() <= 1:
+        flash("Can't delete the last superadmin account.", "error")
+    else:
+        db.session.delete(target)
+        db.session.commit()
+        flash(f"Admin account removed: {target.email}", "success")
+    return redirect(url_for("admin.manage_admins"))

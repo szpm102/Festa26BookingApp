@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="topbar">
+  <div><strong>{{ cfg.EVENT_NAME }}</strong> &mdash; Manage Admins</div>
+  <div>
+    <a class="btn small secondary" href="{{ url_for('admin.dashboard') }}">Back to dashboard</a>
+  </div>
+</div>
+
+<div class="container" style="max-width:600px;">
+  <div class="card">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="msg {{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <h2 style="margin-top:0;">Admin accounts</h2>
+    <table style="width:100%; margin-bottom:20px;">
+      <thead>
+        <tr><th>Email</th><th>Role</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for a in admins %}
+        <tr>
+          <td>{{ a.email }}</td>
+          <td>{% if a.is_superadmin %}<span class="badge paid">Superadmin</span>{% else %}<span class="badge pending">Admin</span>{% endif %}</td>
+          <td>
+            {% if a.id != current_user.id %}
+            <form method="post" action="{{ url_for('admin.delete_admin', admin_id=a.id) }}"
+                  onsubmit="return confirm('Remove admin account {{ a.email }}?');" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn small secondary">Remove</button>
+            </form>
+            {% else %}
+            <span style="color:var(--grey-light); font-size:0.8rem;">(you)</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2>Create new admin</h2>
+    <form method="post" action="{{ url_for('admin.create_admin') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="new-email">Email</label>
+      <input type="text" id="new-email" name="email" required>
+      <label for="new-password">Password</label>
+      <input type="password" id="new-password" name="password" minlength="8" required>
+      <label style="display:flex; align-items:center; gap:8px; margin-top:14px;">
+        <input type="checkbox" name="is_superadmin" style="width:auto;">
+        Grant superadmin rights (can also reset check-ins and manage other admins)
+      </label>
+      <div style="margin-top:18px;">
+        <button type="submit" class="btn">Create admin</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

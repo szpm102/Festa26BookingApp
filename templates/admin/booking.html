@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block body %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<div class="topbar">
+  <div><strong>{{ cfg.EVENT_NAME }}</strong> &mdash; Booking {{ booking.reference }}</div>
+  <div>
+    <a class="btn small secondary" href="{{ url_for('admin.dashboard') }}">Back to dashboard</a>
+  </div>
+</div>
+
+<div class="container" style="max-width:600px;">
+  <div class="card">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="msg {{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <h2 style="margin-top:0;">{{ booking.reference }}</h2>
+    <table style="width:100%; margin-bottom:16px;">
+      <tr><td style="color:var(--grey-light);">Name</td><td>{{ booking.attendee_name }}</td></tr>
+      <tr><td style="color:var(--grey-light);">Email</td><td>{{ booking.email }}</td></tr>
+      <tr><td style="color:var(--grey-light);">Amount</td><td>&euro;{{ "%.2f"|format(booking.amount_total_eur) }} ({{ booking.payment_method }})</td></tr>
+      <tr><td style="color:var(--grey-light);">Payment status</td><td><span class="badge {{ booking.payment_status }}">{{ booking.payment_status }}</span></td></tr>
+    </table>
+
+    {% if booking.payment_status != 'paid' %}
+      <div class="msg error">This booking isn't marked as paid. Do not let these tickets in without checking with the committee.</div>
+    {% endif %}
+
+    <p style="color:var(--grey-light); font-size:0.85rem;">
+      Each seat below has its own QR code and can be checked in independently &mdash;
+      use this page to check seats in manually if scanning isn't convenient.
+    </p>
+
+    <table style="width:100%;">
+      <thead>
+        <tr><th>Seat</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for seat in booking.seats|sort(attribute='label') %}
+        <tr>
+          <td><strong>{{ seat.label }}</strong></td>
+          <td>
+            {% if seat.checked_in_at %}
+              <span class="badge paid">Checked in {{ seat.checked_in_at.strftime("%d %b %H:%M") }}</span>
+            {% else %}
+              <span class="badge pending">Not checked in</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if booking.payment_status == 'paid' and not seat.checked_in_at %}
+            <form method="post" action="{{ url_for('admin.checkin_confirm', token=seat.checkin_token) }}" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn small">Mark Checked In</button>
+            </form>
+            {% elif seat.checked_in_at and can_reset %}
+            <form method="post" action="{{ url_for('admin.checkin_reset', token=seat.checkin_token) }}"
+                  onsubmit="return confirm('Reset check-in for seat {{ seat.label }}?');" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn small secondary">Reset</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

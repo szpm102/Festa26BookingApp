@@ -309,6 +309,69 @@ body {
 .seat:disabled { opacity: 0.9; }
 .seat.selected { background: var(--selected) !important; color: #fff !important; box-shadow: 0 0 0 2px #fff2; }
 
+/* Schematic site-map seating chart (road -> seats -> field) on the public page */
+.seatmap-svg { display: block; font-family: inherit; }
+
+.map-houses { fill: #241512; }
+.map-house-body { fill: #3a231e; stroke: rgba(255,255,255,0.12); stroke-width: 0.5; }
+.map-house-roof { fill: #4a2c24; }
+
+.map-road { fill: #2b2b2b; }
+.map-road-edge {
+  stroke: #f0c419;
+  stroke-width: 1.5;
+  stroke-dasharray: 10 8;
+  opacity: 0.7;
+}
+.map-field {
+  fill: #1c3a1e;
+}
+.map-field-boundary { stroke: rgba(255,255,255,0.25); stroke-width: 1; stroke-dasharray: 4 4; }
+
+.map-label {
+  fill: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-anchor: middle;
+}
+
+.map-label-dim {
+  fill: var(--grey-light);
+  font-size: 10px;
+}
+
+.map-row-label {
+  fill: var(--grey-light);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.map-tick {
+  fill: var(--grey-light);
+  font-size: 9px;
+  text-anchor: middle;
+}
+
+.seat-shape {
+  fill: var(--available);
+  cursor: pointer;
+  transition: transform 120ms ease, fill 150ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.seat-shape:hover { fill: var(--available-hover); transform: translateY(-2px); }
+.seat-shape.status-held { fill: var(--held); cursor: not-allowed; }
+.seat-shape.status-booked { fill: var(--booked); stroke: #333; stroke-width: 1; cursor: not-allowed; }
+.seat-shape.status-disabled { fill: var(--disabled); cursor: not-allowed; }
+.seat-shape.status-held_mine { fill: var(--selected); stroke: #fff; stroke-width: 1.5; }
+.seat-shape.status-held_mine:hover { transform: none; }
+
+@media (hover: none) and (pointer: coarse) {
+  .seat-shape:hover { transform: none; }
+}
+
 .booking-summary {
   display: flex;
   justify-content: space-between;
@@ -366,6 +429,43 @@ input[type=text], input[type=email], input[type=tel], input[type=password], text
 .msg { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 0.9rem; }
 .msg.error { background: rgba(216,31,38,0.2); border: 1px solid var(--red); }
 .msg.success { background: rgba(46,125,50,0.2); border: 1px solid var(--available); }
+
+.checkin-banner {
+  text-align: center;
+  padding: 22px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 2px solid;
+}
+
+.checkin-banner-icon { font-size: 2.4rem; line-height: 1; margin-bottom: 6px; }
+
+.checkin-banner-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.checkin-banner-sub {
+  margin-top: 8px;
+  font-size: 0.88rem;
+  color: rgba(247,244,242,0.9);
+}
+
+.checkin-banner-good {
+  background: rgba(46,125,50,0.25);
+  border-color: var(--available-hover);
+}
+
+.checkin-banner-good .checkin-banner-title { color: var(--available-hover); }
+
+.checkin-banner-bad {
+  background: rgba(216,31,38,0.25);
+  border-color: var(--red-bright);
+}
+
+.checkin-banner-bad .checkin-banner-title { color: var(--red-bright); }
 
 .footer-note {
   text-align: center;
@@ -580,4 +680,82 @@ th { color: var(--grey-light); text-transform: uppercase; font-size: 0.75rem; }
   color: var(--grey-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* Site sketch: illustrative map of the real street */
+.site-sketch-section {
+  background: linear-gradient(180deg, #0b0605, #170d0b 60%);
+  padding: 44px 16px 52px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sketch-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.sketch-svg { display: block; width: 100%; height: auto; border-radius: 8px; }
+
+.sketch-house-body { fill: #3a231e; stroke: rgba(255,255,255,0.1); stroke-width: 1; }
+.sketch-house-roof { fill: #4a2c24; }
+
+.sketch-road { fill: #2b2b2b; }
+.sketch-road-line { stroke: #f0c419; stroke-width: 2; opacity: 0.6; }
+
+.sketch-seating-zone {
+  fill: rgba(216,31,38,0.35);
+  stroke: var(--red-bright);
+  stroke-width: 2;
+}
+
+.sketch-street-label {
+  fill: rgba(255,255,255,0.55);
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.sketch-zone-label {
+  fill: var(--grey-light);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.sketch-zone-label-sm {
+  fill: var(--grey-light);
+  font-size: 9px;
+}
+
+.sketch-leader { stroke: var(--red-bright); stroke-width: 1; }
+
+.sketch-launch-ring {
+  fill: rgba(216,31,38,0.12);
+  stroke: rgba(255,255,255,0.35);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+}
+
+.sketch-launch-icon { font-size: 28px; }
+
+.sketch-seating-label {
+  fill: var(--red-bright);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.sketch-seating-label-sm {
+  fill: var(--grey-light);
+  font-size: 9px;
+}
+
+.sketch-note {
+  color: var(--grey-light);
+  font-size: 0.8rem;
+  margin: 14px 4px 0;
+  text-align: center;
 }
