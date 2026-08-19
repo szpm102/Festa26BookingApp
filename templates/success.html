@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container" style="max-width:600px; padding-top:60px;">
+  <div class="card" style="text-align:center;">
+    <h1 style="color:var(--available);">Payment Successful</h1>
+    <p>Thank you! Your seat{{ "s" if seat_labels|length != 1 else "" }}
+      {% if seat_labels %}<b>{{ seat_labels|join(', ') }}</b>{% endif %}
+      for <b>{{ cfg.EVENT_NAME }}</b> {{ "are" if seat_labels|length != 1 else "is" }} confirmed.</p>
+    {% if amount %}<p>Amount paid: &euro;{{ "%.2f"|format(amount) }}</p>{% endif %}
+    {% if email %}<p>A confirmation email is on its way to <b>{{ email }}</b>.</p>{% endif %}
+    <p style="color:var(--grey-light);">{{ cfg.EVENT_LOCATION }} &middot; {{ cfg.EVENT_DATE_TEXT }} at {{ cfg.EVENT_TIME_TEXT }}</p>
+    <a class="btn" href="{{ url_for('public.index') }}">Back to booking page</a>
+  </div>
+</div>
+{% endblock %}

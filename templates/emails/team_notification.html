@@ -1,0 +1,14 @@
+<div style="font-family:Arial,sans-serif;">
+  <h2 style="color:#d81f26;">New Fireworks Seat Booking</h2>
+  <table style="font-size:0.95rem;">
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Reference</td><td><strong>{{ booking.reference }}</strong></td></tr>
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Name</td><td>{{ booking.attendee_name }}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Email</td><td>{{ booking.email }}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Phone</td><td>{{ booking.phone or "-" }}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Seat(s)</td><td>{{ booking.seat_labels() }}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Amount</td><td>&euro;{{ "%.2f"|format(booking.amount_total_eur) }}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Payment method</td><td>{{ booking.payment_method }}{% if booking.created_by_admin %} (entered by admin){% endif %}</td></tr>
+    <tr><td style="padding:4px 10px 4px 0;color:#555;">Booked at</td><td>{{ booking.created_at.strftime("%d %b %Y %H:%M") if booking.created_at else "" }}</td></tr>
+    {% if booking.notes %}<tr><td style="padding:4px 10px 4px 0;color:#555;">Notes</td><td>{{ booking.notes }}</td></tr>{% endif %}
+  </table>
+</div>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container" style="max-width:600px; padding-top:60px;">
+  <div class="card" style="text-align:center;">
+    <h1>Booking Cancelled</h1>
+    <p>No payment was taken and your seats have been released back for others to book.</p>
+    <a class="btn" href="{{ url_for('public.index') }}">Choose seats again</a>
+  </div>
+</div>
+{% endblock %}

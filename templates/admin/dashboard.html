@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block body %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<div class="topbar">
+  <div><strong>{{ cfg.EVENT_NAME }}</strong> &mdash; Admin</div>
+  <div>
+    <a class="btn small secondary" href="{{ url_for('admin.report') }}">Download report (.xlsx)</a>
+    <a class="btn small secondary" href="{{ url_for('admin.logout') }}">Log out</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="stat-grid">
+    <div class="stat"><div class="num">{{ counts.total }}</div><div class="lbl">Total seats</div></div>
+    <div class="stat"><div class="num" style="color:var(--available-hover)">{{ counts.available }}</div><div class="lbl">Available</div></div>
+    <div class="stat"><div class="num" style="color:var(--held)">{{ counts.held }}</div><div class="lbl">Held now</div></div>
+    <div class="stat"><div class="num">{{ counts.booked }}</div><div class="lbl">Booked</div></div>
+    <div class="stat"><div class="num" style="color:var(--grey-light)">{{ counts.disabled }}</div><div class="lbl">Disabled</div></div>
+    <div class="stat"><div class="num" style="color:var(--available-hover)">&euro;{{ "%.2f"|format(revenue) }}</div><div class="lbl">Revenue collected</div></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Seat map</h2>
+    <p style="color:var(--grey-light);">Click seats to select them, then use an action below. Click a booked seat to view/cancel its booking.</p>
+    <div class="legend">
+      <span><i class="swatch sw-available"></i> Available</span>
+      <span><i class="swatch sw-selected"></i> Selected</span>
+      <span><i class="swatch sw-held"></i> Held</span>
+      <span><i class="swatch sw-booked"></i> Booked</span>
+      <span><i class="swatch sw-disabled"></i> Disabled</span>
+    </div>
+    <div id="seat-map"><p>Loading seat map...</p></div>
+
+    <div class="booking-summary">
+      <div class="selected-list">Selected: <b id="selected-count">0</b> seat(s)</div>
+      <div>
+        <button class="btn small" id="btn-disable">Disable selected</button>
+        <button class="btn small secondary" id="btn-enable">Enable selected</button>
+        <button class="btn small" id="btn-book-cash">Book for cash payment</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Bookings</h2>
+    <table>
+      <thead>
+        <tr><th>Ref</th><th>Name</th><th>Email</th><th>Seats</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr>
+          <td>{{ b.reference }}</td>
+          <td>{{ b.attendee_name }}</td>
+          <td>{{ b.email }}</td>
+          <td>{{ b.seat_labels() }}</td>
+          <td>&euro;{{ "%.2f"|format(b.amount_total_eur) }}</td>
+          <td>{{ b.payment_method }}</td>
+          <td><span class="badge {{ b.payment_status }}">{{ b.payment_status }}</span></td>
+          <td>{{ b.created_at.strftime("%d %b %H:%M") if b.created_at else "" }}</td>
+          <td>
+            {% if b.payment_status != 'cancelled' %}
+            <button class="btn small secondary cancel-booking" data-id="{{ b.id }}">Cancel</button>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" style="text-align:center;color:var(--grey-light);">No bookings yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="admin-panel">
+  <h3>Book for cash payment</h3>
+  <div id="cash-form">
+    <label>Name</label>
+    <input type="text" id="cash-name">
+    <label>Email</label>
+    <input type="email" id="cash-email">
+    <label>Phone</label>
+    <input type="tel" id="cash-phone">
+    <label>Notes</label>
+    <input type="text" id="cash-notes" placeholder="e.g. paid at parish office">
+    <div style="margin-top:16px;">
+      <button class="btn" id="cash-submit">Confirm booking</button>
+      <button class="btn secondary" id="cash-cancel">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
