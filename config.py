@@ -109,7 +109,6 @@ class Config:
         {"name": "Paolo's Bar, Pizzeria & Grill", "slug": "paolos"},
         {"name": "Pro Stage Sound", "slug": "pro-stage"},
         {"name": "Sammy Spiteri Contractor", "slug": "sammy-spiteri"},
-        {"name": "Social Causes Fund", "slug": "social-causes-fund"},
         {"name": "Universal Cement Ltd", "slug": "universal-cement"},
         {"name": "Whimpy's Kiosk", "slug": "whimpys-kiosk"},
     ]
