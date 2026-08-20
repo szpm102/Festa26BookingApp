@@ -41,21 +41,21 @@ class Config:
     # Wider festa program (this site only sells seats for "Light Up the Sky",
     # but the home page cross-promotes the full week so visitors see this is
     # one event within it - matches the official festa poster).
-    FESTIVAL_NAME = "Festa San Pawl Nawfragu"
+    FESTIVAL_NAME = "Feast of Saint Paul Shipwreck"
     FESTIVAL_EYEBROW = "Sezzjoni Zghazagh Pawlini Munxarin"
-    FESTIVAL_PLACE = "Munxar, Ghawdex"
-    FESTIVAL_DATES_TEXT = "5 - 13 ta' Settembru 2026"
+    FESTIVAL_PLACE = "Munxar, Gozo"
+    FESTIVAL_DATES_TEXT = "5 - 13 September 2026"
     SOCIAL_FACEBOOK_HANDLE = "szpmgozo"
     SOCIAL_INSTAGRAM_HANDLE = "szpm.mt"
 
     PROGRAMME = [
         {
             "key": "nar",
-            "name": "Nar tal-Art",
+            "name": "Ground Fireworks",
             "tagline": "Ground fireworks display",
             "date": "Friday, 11th September",
             "time": "00:00",
-            "location": "Pjazza tal-Munxar",
+            "location": "Munxar Square",
             "current": False,
         },
         {
@@ -73,12 +73,12 @@ class Config:
             "tagline": "38-piece live orchestra with immersive holographic displays and light show",
             "date": "Saturday, 12th September",
             "time": "22:30",
-            "location": "Madonna tal-Karmnu Street, Munxar",
+            "location": "Our Lady of Mount Carmel Street, Munxar",
             "current": False,
         },
         {
             "key": "festa",
-            "name": "Jum il-Festa",
+            "name": "Feast Day",
             "tagline": "Procession of St Paul Shipwrecked",
             "date": "Sunday, 13th September",
             "time": "19:00",
