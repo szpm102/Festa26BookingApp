@@ -23,6 +23,15 @@ class Config:
             "postgres://", "postgresql://", 1
         )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Postgres (and any proxy in front of it) can silently drop idle
+    # connections; without pre-ping, SQLAlchemy's pool hands out the dead
+    # connection and the next query fails with "SSL SYSCALL error: EOF
+    # detected". pre-ping tests each connection before use and transparently
+    # reconnects; recycle forces a refresh before typical idle-timeout limits.
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 280,
+    }
 
     # Browser tab / bookmark title (kept separate from EVENT_NAME, which is
     # the event's own name shown throughout the page content and emails).
