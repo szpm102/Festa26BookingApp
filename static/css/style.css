@@ -518,7 +518,7 @@ input[type=text], input[type=email], input[type=tel], input[type=password], text
   background: #f7f4f2;
   border-radius: 10px;
   padding: 12px 18px;
-  height: 160px;
+  height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -527,8 +527,8 @@ input[type=text], input[type=email], input[type=tel], input[type=password], text
 }
 
 .sponsor-tile img {
-  max-height: 136px;
-  max-width: 420px;
+  max-height: 106px;
+  max-width: 340px;
   width: auto;
   height: auto;
   display: block;
