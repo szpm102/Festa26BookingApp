@@ -93,11 +93,18 @@ def send_booking_confirmation(booking):
             seat.wallet_google_url = wallet_result.get("googleSaveUrl")
             seat.wallet_apple_pass_b64 = wallet_result.get("applePass")
             db.session.commit()
-            attachments.append((
-                f"ticket-{booking.reference}-{seat.label}.pkpass",
-                wallet.decode_apple_pass(seat.wallet_apple_pass_b64),
-                "vnd.apple.pkpass",
-            ))
+            if seat.wallet_apple_pass_b64:
+                try:
+                    attachments.append((
+                        f"ticket-{booking.reference}-{seat.label}.pkpass",
+                        wallet.decode_apple_pass(seat.wallet_apple_pass_b64),
+                        "vnd.apple.pkpass",
+                    ))
+                except Exception:
+                    current_app.logger.exception(
+                        "Skipping malformed Apple Wallet pass for booking %s seat %s",
+                        booking.reference, seat.label,
+                    )
 
         tickets.append({"seat": seat, "qr_cid": cid})
 

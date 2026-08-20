@@ -64,4 +64,13 @@ def _fulfil_checkout(checkout_session):
     current_app.logger.info("Confirmed %s seats for booking %s", confirmed, booking.reference)
 
     db.session.refresh(booking)
-    emailer.send_booking_confirmation(booking)
+    try:
+        emailer.send_booking_confirmation(booking)
+    except Exception:
+        # The seat is already booked and paid at this point - Stripe must not
+        # retry (it would just hit the "already processed" guard above and
+        # skip the email forever). Log it; an admin can resend manually from
+        # the booking overview page.
+        current_app.logger.exception(
+            "send_booking_confirmation failed for booking %s - use admin resend", booking.reference
+        )

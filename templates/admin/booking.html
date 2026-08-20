@@ -26,6 +26,11 @@
 
     {% if booking.payment_status != 'paid' %}
       <div class="msg error">This booking isn't marked as paid. Do not let these tickets in without checking with the committee.</div>
+    {% else %}
+      <form method="post" action="{{ url_for('admin.resend_email', reference=booking.reference) }}" style="margin-bottom:16px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn small secondary">Resend confirmation email</button>
+      </form>
     {% endif %}
 
     <p style="color:var(--grey-light); font-size:0.85rem;">

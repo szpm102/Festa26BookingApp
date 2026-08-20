@@ -158,7 +158,12 @@ def api_book_cash():
 
     confirm_seats_for_booking(seat_ids, booking.id, from_statuses=[SeatStatus.AVAILABLE, SeatStatus.HELD])
     db.session.refresh(booking)
-    emailer.send_booking_confirmation(booking)
+    try:
+        emailer.send_booking_confirmation(booking)
+    except Exception:
+        current_app.logger.exception(
+            "send_booking_confirmation failed for cash booking %s - use admin resend", booking.reference
+        )
 
     return jsonify({"ok": True, "reference": booking.reference})
 
@@ -190,6 +195,28 @@ def booking_overview(reference):
         "admin/booking.html", cfg=current_app.config, booking=booking,
         can_reset=current_user.is_superadmin,
     )
+
+
+@admin_bp.route("/booking/<reference>/resend-email", methods=["POST"])
+@login_required
+def resend_email(reference):
+    booking = Booking.query.filter_by(reference=reference.strip().upper()).first()
+    if not booking:
+        flash(f"No booking found for '{reference}'.", "error")
+        return redirect(url_for("admin.dashboard"))
+
+    if booking.payment_status != PaymentStatus.PAID:
+        flash("This booking isn't marked as paid - not resending a confirmation email.", "error")
+        return redirect(url_for("admin.booking_overview", reference=booking.reference))
+
+    try:
+        emailer.send_booking_confirmation(booking)
+        flash(f"Confirmation email re-sent to {booking.email}.", "success")
+    except Exception:
+        current_app.logger.exception("Manual resend failed for booking %s", booking.reference)
+        flash("Failed to send the email - check the error log for details.", "error")
+
+    return redirect(url_for("admin.booking_overview", reference=booking.reference))
 
 
 @admin_bp.route("/checkin/<token>", methods=["GET"])
