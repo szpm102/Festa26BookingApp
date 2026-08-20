@@ -186,6 +186,31 @@
   </p>
 </div>
 
+<section class="sponsors-section" id="sponsors">
+  <div class="programme-inner">
+    <div class="sponsor-tier">
+      <div class="sponsor-tier-label">Main Sponsors</div>
+      <div class="sponsor-grid">
+        {% for s in cfg.SPONSORS_MAIN %}
+        <div class="sponsor-tile">
+          <img src="{{ url_for('static', filename='img/sponsors/main/' + s.slug + '.png') }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="sponsor-tier">
+      <div class="sponsor-tier-label sponsor-tier-label-gold">Gold Sponsors</div>
+      <div class="sponsor-grid sponsor-grid-gold">
+        {% for s in cfg.SPONSORS_GOLD %}
+        <div class="sponsor-tile sponsor-tile-gold">
+          <img src="{{ url_for('static', filename='img/sponsors/gold/' + s.slug + '.png') }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
 <script>
   window.SEAT_PRICE = {{ seat_price }};
   window.EVENT_DATETIME_ISO = "{{ cfg.EVENT_DATETIME_ISO }}";

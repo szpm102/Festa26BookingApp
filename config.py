@@ -95,6 +95,37 @@ class Config:
         },
     ]
 
+    # Sponsor logos, shown at the bottom of the home page. Image files live at
+    # static/img/sponsors/main/<slug>.png and static/img/sponsors/gold/<slug>.png.
+    SPONSORS_MAIN = [
+        {"name": "Beam Lighting", "slug": "beam-lighting"},
+        {"name": "Michael Hili Pig Rotisserie", "slug": "michael-hili"},
+        {"name": "F&U Air Condition", "slug": "fu-air-condition"},
+        {"name": "Ic-Centru Munxar", "slug": "ic-centru-munxar"},
+        {"name": "Ivan Benz Mercedes Mechanic", "slug": "ivan-benz"},
+        {"name": "VisitMalta - MTA", "slug": "mta"},
+        {"name": "Micho Lighting", "slug": "micho-lighting"},
+        {"name": "Munxar Local Council", "slug": "munxar-lc"},
+        {"name": "Paolo's Bar, Pizzeria & Grill", "slug": "paolos"},
+        {"name": "Pro Stage Sound", "slug": "pro-stage"},
+        {"name": "Sammy Spiteri Contractor", "slug": "sammy-spiteri"},
+        {"name": "Social Causes Fund", "slug": "social-causes-fund"},
+        {"name": "Universal Cement Ltd", "slug": "universal-cement"},
+        {"name": "Whimpy's Kiosk", "slug": "whimpys-kiosk"},
+    ]
+    SPONSORS_GOLD = [
+        {"name": "AC Power Generator Hire", "slug": "ac-power"},
+        {"name": "Damien Spiteri CPA & Auditor", "slug": "damien-spiteri"},
+        {"name": "Makeup Artistry by Marilena", "slug": "marilena-makeup"},
+        {"name": "Waterproofing Membrane by Mike", "slug": "membrane-by-mike"},
+        {"name": "MoveMedix Physio & Rehab Clinic", "slug": "movemedix"},
+        {"name": "Richard Xerri Building Contractor", "slug": "richard-xerri"},
+        {"name": "Security First Services Ltd", "slug": "security-first"},
+        {"name": "Tas-Sultan Electrician, Plumber, Handyman", "slug": "tas-sultan"},
+        {"name": "Victoria Hotspurs Sports Bar", "slug": "victoria-hotspurs"},
+        {"name": "Woodaholic Gozo", "slug": "woodaholic"},
+    ]
+
     # Seats
     TOTAL_SEATS = int(_env("TOTAL_SEATS", "300"))
     SEAT_PRICE_EUR = float(_env("SEAT_PRICE_EUR", "4.00"))

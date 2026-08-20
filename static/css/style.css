@@ -474,6 +474,83 @@ input[type=text], input[type=email], input[type=tel], input[type=password], text
   margin-top: 30px;
 }
 
+/* Sponsors */
+.sponsors-section {
+  background: linear-gradient(180deg, #0b0605, #170d0b 60%);
+  padding: 30px 16px 40px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sponsor-tier + .sponsor-tier { margin-top: 26px; }
+
+.sponsor-tier-label {
+  text-align: center;
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--red-bright);
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sponsor-tier-label::before, .sponsor-tier-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+}
+
+.sponsor-tier-label-gold { color: var(--gold); }
+
+.sponsor-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.sponsor-tile {
+  background: #f7f4f2;
+  border-radius: 10px;
+  padding: 12px 18px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  transition: transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+}
+
+.sponsor-tile img {
+  max-height: 52px;
+  max-width: 190px;
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+.sponsor-tile-gold {
+  height: 58px;
+  padding: 8px 14px;
+}
+
+.sponsor-tile-gold img {
+  max-height: 38px;
+  max-width: 140px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sponsor-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.4);
+  }
+}
+
 /* Admin */
 .topbar {
   display: flex;
