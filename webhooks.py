@@ -61,7 +61,21 @@ def _fulfil_checkout(checkout_session):
     confirmed = confirm_seats_for_booking(
         seat_ids, booking.id, from_statuses=[SeatStatus.HELD, SeatStatus.AVAILABLE]
     )
-    current_app.logger.info("Confirmed %s seats for booking %s", confirmed, booking.reference)
+    if confirmed < len(seat_ids):
+        # The customer already paid, but one or more of the seats they picked
+        # were re-sold to someone else (or otherwise left AVAILABLE/HELD)
+        # before this webhook ran - most likely their hold expired while they
+        # were still on Stripe's page. send_booking_confirmation() below
+        # detects a booking with no/fewer seats and sends a distinct "we need
+        # to sort this out" email instead of a broken blank ticket, but this
+        # still needs a human to actually resolve it.
+        current_app.logger.error(
+            "Booking %s: only %s/%s requested seats could be confirmed "
+            "(seat_ids=%s) - needs manual resolution",
+            booking.reference, confirmed, len(seat_ids), seat_ids,
+        )
+    else:
+        current_app.logger.info("Confirmed %s seats for booking %s", confirmed, booking.reference)
 
     db.session.refresh(booking)
     try:

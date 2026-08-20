@@ -156,7 +156,12 @@ def api_book_cash():
     db.session.add(booking)
     db.session.commit()
 
-    confirm_seats_for_booking(seat_ids, booking.id, from_statuses=[SeatStatus.AVAILABLE, SeatStatus.HELD])
+    confirmed = confirm_seats_for_booking(seat_ids, booking.id, from_statuses=[SeatStatus.AVAILABLE, SeatStatus.HELD])
+    if confirmed < len(seat_ids):
+        current_app.logger.error(
+            "Cash booking %s: only %s/%s requested seats could be confirmed (seat_ids=%s) - "
+            "needs manual resolution", booking.reference, confirmed, len(seat_ids), seat_ids,
+        )
     db.session.refresh(booking)
     try:
         emailer.send_booking_confirmation(booking)
