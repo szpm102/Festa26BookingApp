@@ -66,7 +66,7 @@ class Config:
         {
             "key": "stars",
             "name": "Sky Full of Stars",
-            "tagline": "Fireworks display synchronised with music - HoloConcert + Live Orchestra",
+            "tagline": "38-piece live orchestra with immersive holographic displays and light show",
             "date": "Saturday, 12th September",
             "time": "22:30",
             "location": "Madonna tal-Karmnu Street, Munxar",

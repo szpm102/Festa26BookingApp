@@ -30,9 +30,12 @@
   <div class="card">
     <h2 style="margin-top:0;">Ticket check-in</h2>
     <p style="color:var(--grey-light);">
-      Scan a guest's QR code with your phone's camera app &mdash; it opens the check-in page directly
-      (you'll be asked to log in first if needed). Or look one up here by booking reference.
+      Scan a guest's QR code right here using this device's camera, or with your phone's normal
+      camera app (opens the check-in page directly). Or look one up below by booking reference.
     </p>
+    <div style="margin-bottom:18px;">
+      <a href="{{ url_for('admin.scan') }}" class="btn">Scan Ticket QR</a>
+    </div>
     <form method="post" action="{{ url_for('admin.checkin_lookup') }}" style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div style="flex:1; min-width:200px;">

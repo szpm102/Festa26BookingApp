@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<div class="topbar">
+  <div><strong>{{ cfg.EVENT_NAME }}</strong> &mdash; Scan Ticket</div>
+  <div>
+    <a class="btn small secondary" href="{{ url_for('admin.dashboard') }}">Back to dashboard</a>
+  </div>
+</div>
+
+<div class="container" style="max-width:500px;">
+  <div class="card">
+    <h2 style="margin-top:0;">Scan a ticket QR code</h2>
+    <p style="color:var(--grey-light); font-size:0.9rem;">
+      Point your camera at the QR code on the guest's ticket. It'll open that seat's
+      check-in page automatically as soon as it's recognised.
+    </p>
+
+    <div id="scan-msg"></div>
+
+    <div class="scan-video-wrap">
+      <video id="scan-video" playsinline muted></video>
+      <div class="scan-frame"></div>
+    </div>
+    <canvas id="scan-canvas" style="display:none;"></canvas>
+
+    <div style="margin-top:14px; text-align:center;">
+      <button class="btn secondary" id="scan-switch-camera" style="display:none;">Switch camera</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/jsqr.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+{% endblock %}

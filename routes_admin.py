@@ -56,6 +56,12 @@ def logout():
     return redirect(url_for("admin.login"))
 
 
+@admin_bp.route("/scan")
+@login_required
+def scan():
+    return render_template("admin/scan.html", cfg=current_app.config)
+
+
 @admin_bp.route("/")
 @login_required
 def dashboard():
