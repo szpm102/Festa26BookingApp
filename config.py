@@ -24,6 +24,10 @@ class Config:
         )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # Browser tab / bookmark title (kept separate from EVENT_NAME, which is
+    # the event's own name shown throughout the page content and emails).
+    SITE_TITLE = "SZPM | Munxar Feast 2026"
+
     # Event details (from the official poster)
     EVENT_NAME = "Light Up the Sky - Fireworks Display"
     EVENT_SUBTITLE = "Fireworks Display Synchronised with Music"
