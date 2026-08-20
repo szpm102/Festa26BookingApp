@@ -193,7 +193,7 @@
       <div class="sponsor-grid">
         {% for s in cfg.SPONSORS_MAIN %}
         <div class="sponsor-tile">
-          <img src="{{ url_for('static', filename='img/sponsors/main/' + s.slug + '.png') }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
+          <img src="{{ url_for('static', filename='img/sponsors/main/' + s.slug + '.png') }}?v={{ cfg.SPONSOR_ASSETS_VERSION }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
         </div>
         {% endfor %}
       </div>
@@ -203,7 +203,7 @@
       <div class="sponsor-grid sponsor-grid-gold">
         {% for s in cfg.SPONSORS_GOLD %}
         <div class="sponsor-tile sponsor-tile-gold">
-          <img src="{{ url_for('static', filename='img/sponsors/gold/' + s.slug + '.png') }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
+          <img src="{{ url_for('static', filename='img/sponsors/gold/' + s.slug + '.png') }}?v={{ cfg.SPONSOR_ASSETS_VERSION }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
         </div>
         {% endfor %}
       </div>

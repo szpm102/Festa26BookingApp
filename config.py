@@ -37,6 +37,12 @@ class Config:
     # the event's own name shown throughout the page content and emails).
     SITE_TITLE = "SZPM | Munxar Feast 2026"
 
+    # Sponsor logo files are cached by browsers for hours (see static file
+    # cache headers) under fixed filenames - bump this whenever a sponsor
+    # image is replaced so visitors with an old cached copy fetch the new
+    # one immediately instead of waiting out the cache lifetime.
+    SPONSOR_ASSETS_VERSION = "2"
+
     # Event details (from the official poster)
     EVENT_NAME = "Light Up the Sky - Fireworks Display"
     EVENT_SUBTITLE = "Fireworks Display Synchronised with Music"
