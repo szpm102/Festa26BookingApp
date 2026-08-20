@@ -215,6 +215,6 @@
   window.SEAT_PRICE = {{ seat_price }};
   window.EVENT_DATETIME_ISO = "{{ cfg.EVENT_DATETIME_ISO }}";
 </script>
-<script src="{{ url_for('static', filename='js/hero.js') }}"></script>
-<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+<script src="{{ url_for('static', filename='js/hero.js') }}?v={{ cfg.ASSET_VERSION }}"></script>
+<script src="{{ url_for('static', filename='js/booking.js') }}?v={{ cfg.ASSET_VERSION }}"></script>
 {% endblock %}

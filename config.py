@@ -43,6 +43,11 @@ class Config:
     # one immediately instead of waiting out the cache lifetime.
     SPONSOR_ASSETS_VERSION = "2"
 
+    # Same idea for the site's own CSS/JS (also cached for hours under fixed
+    # filenames) - bump whenever style.css or a template's <script> changes,
+    # so the fix is visible immediately instead of only for new visitors.
+    ASSET_VERSION = "2"
+
     # Event details (from the official poster)
     EVENT_NAME = "Light Up the Sky - Fireworks Display"
     EVENT_SUBTITLE = "Fireworks Display Synchronised with Music"

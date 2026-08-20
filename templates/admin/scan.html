@@ -31,5 +31,5 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/jsqr.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scan.js') }}?v={{ cfg.ASSET_VERSION }}"></script>
 {% endblock %}
