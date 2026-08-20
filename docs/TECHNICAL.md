@@ -190,6 +190,41 @@ in from one screen.
 Only a superadmin can `POST /admin/checkin/<token>/reset` (also enforced
 server-side, not just hidden in the UI).
 
+### 4.6 Marketing funnel analytics
+
+A self-hosted, no-third-party-service funnel log (`analytics.py`, table
+`analytics_events`) for the one marketing question this project actually
+needs answered: how many site visits turn into a booking. No personal data
+- just the same per-browser session id already used for seat holds, an
+event type, and a timestamp.
+
+Events logged, in funnel order:
+1. `page_view` - every `GET /` (`routes_public.index`).
+2. `book_cta_click` - clicking the homepage's "Book Your Seat" button.
+   Client-side only (it's just an anchor scroll, no server request), so
+   `static/js/hero.js` fires a fire-and-forget `POST /api/track` for it.
+   That endpoint only accepts event types in `CLIENT_LOGGABLE_EVENTS` -
+   it can't be used to log arbitrary event types.
+3. `seat_selected` - the first successful seat hold in a session
+   (`routes_api.hold`), deduped via `analytics.has_event()` so selecting
+   multiple seats doesn't inflate the count.
+4. `checkout_started` - a Stripe Checkout Session was successfully created
+   (`routes_public.checkout`).
+5. `booking_completed_online` - the Stripe webhook actually confirmed the
+   booking (`webhooks._fulfil_checkout`), tagged with the *browsing*
+   session id carried through in the Checkout Session's `metadata.session_id`
+   (not the webhook request's own session, which doesn't exist - Stripe
+   calls this endpoint server-to-server).
+6. `booking_completed_cash` - an admin-entered cash booking
+   (`routes_admin.api_book_cash`) - logged without a session id, since it
+   didn't originate from a browsing session to correlate against.
+
+`analytics.funnel_summary()` turns these into counts plus step-to-step
+conversion rates; `analytics.daily_breakdown()` buckets visits/bookings by
+calendar day. Both back the admin page at `/admin/analytics` (optional
+`?days=7`/`?days=30` to window the query) and its Excel export at
+`/admin/analytics.xlsx` (`reports.build_analytics_report`).
+
 ## 5. Front-end notes
 
 - **Seat map**: polls `GET /api/seats` every 4s; clicking a seat calls

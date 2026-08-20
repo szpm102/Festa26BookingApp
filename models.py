@@ -96,6 +96,20 @@ class Booking(db.Model):
         return checked_in, total
 
 
+class AnalyticsEvent(db.Model):
+    """A minimal, self-hosted funnel log for marketing metrics - visits,
+    clicks/interactions, and how many of them turn into a booking. No
+    personal data: just a per-browser session id (already used for seat
+    holds) and an event type/timestamp."""
+    __tablename__ = "analytics_events"
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String(64), nullable=True, index=True)
+    event_type = db.Column(db.String(40), nullable=False, index=True)
+    meta = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+
 class Admin(UserMixin, db.Model):
     __tablename__ = "admins"
 

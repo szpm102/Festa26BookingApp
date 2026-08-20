@@ -4,6 +4,7 @@ from extensions import db, csrf
 from models import Seat, Booking, SeatStatus, PaymentMethod, PaymentStatus
 from seats import confirm_seats_for_booking
 from utils import generate_reference
+from analytics import Event, log_event
 import payments
 import emailer
 import ticketing
@@ -84,6 +85,8 @@ def _fulfil_checkout(checkout_session):
         )
     else:
         current_app.logger.info("Confirmed %s seats for booking %s", confirmed, booking.reference)
+
+    log_event(Event.BOOKING_COMPLETED_ONLINE, metadata.get("session_id"), meta=booking.reference)
 
     db.session.refresh(booking)
     try:

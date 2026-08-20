@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 
 from flask import (
@@ -12,7 +12,8 @@ from extensions import db, csrf, limiter
 from models import Seat, Booking, Admin, SeatStatus, PaymentMethod, PaymentStatus
 from seats import disable_seats, enable_seats, confirm_seats_for_booking, cancel_booking, sweep_expired_holds
 from utils import generate_reference
-from reports import build_bookings_report
+from reports import build_bookings_report, build_analytics_report
+from analytics import Event, log_event, funnel_summary, daily_breakdown
 import emailer
 import ticketing
 import wallet
@@ -162,6 +163,7 @@ def api_book_cash():
             "Cash booking %s: only %s/%s requested seats could be confirmed (seat_ids=%s) - "
             "needs manual resolution", booking.reference, confirmed, len(seat_ids), seat_ids,
         )
+    log_event(Event.BOOKING_COMPLETED_CASH, None, meta=booking.reference)
     db.session.refresh(booking)
     try:
         emailer.send_booking_confirmation(booking)
@@ -294,6 +296,42 @@ def report():
         buf,
         as_attachment=True,
         download_name="fireworks-bookings-report.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+def _analytics_window():
+    """?days=N restricts the funnel report to the last N days; omitted or
+    invalid means all-time."""
+    days = request.args.get("days", type=int)
+    if not days or days <= 0:
+        return None, None
+    return datetime.utcnow() - timedelta(days=days), None
+
+
+@admin_bp.route("/analytics")
+@login_required
+def analytics():
+    start, end = _analytics_window()
+    summary = funnel_summary(start, end)
+    daily_rows = daily_breakdown(start, end)
+    return render_template(
+        "admin/analytics.html", cfg=current_app.config, summary=summary,
+        daily_rows=daily_rows, days=request.args.get("days", type=int),
+    )
+
+
+@admin_bp.route("/analytics.xlsx")
+@login_required
+def analytics_report():
+    start, end = _analytics_window()
+    summary = funnel_summary(start, end)
+    daily_rows = daily_breakdown(start, end)
+    buf = build_analytics_report(summary, daily_rows)
+    return send_file(
+        buf,
+        as_attachment=True,
+        download_name="fireworks-marketing-funnel.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 

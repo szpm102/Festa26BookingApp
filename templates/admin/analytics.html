@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="topbar">
+  <div><strong>{{ cfg.EVENT_NAME }}</strong> &mdash; Marketing Analytics</div>
+  <div>
+    <a class="btn small secondary" href="{{ url_for('admin.analytics_report', days=days) if days else url_for('admin.analytics_report') }}">Download report (.xlsx)</a>
+    <a class="btn small secondary" href="{{ url_for('admin.dashboard') }}">Back to dashboard</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card" style="margin-bottom:20px;">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <span style="color:var(--grey-light); font-size:0.85rem;">Range:</span>
+      <a class="btn small {{ '' if days else 'secondary' }}" href="{{ url_for('admin.analytics') }}">All time</a>
+      <a class="btn small {{ 'secondary' if days != 7 else '' }}" href="{{ url_for('admin.analytics', days=7) }}">Last 7 days</a>
+      <a class="btn small {{ 'secondary' if days != 30 else '' }}" href="{{ url_for('admin.analytics', days=30) }}">Last 30 days</a>
+    </div>
+  </div>
+
+  <p style="color:var(--grey-light); font-size:0.85rem; margin-top:-8px;">
+    No personal data is tracked here - just anonymous per-browser session counts, so you can see how many
+    site visits actually turn into a booking.
+  </p>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="num">{{ summary.page_views }}</div><div class="lbl">Page views</div></div>
+    <div class="stat"><div class="num">{{ summary.visits }}</div><div class="lbl">Visits (unique)</div></div>
+    <div class="stat"><div class="num">{{ summary.book_clicks }}</div><div class="lbl">Clicked "Book Your Seat"</div></div>
+    <div class="stat"><div class="num">{{ summary.seat_selected }}</div><div class="lbl">Selected a seat</div></div>
+    <div class="stat"><div class="num">{{ summary.checkout_started }}</div><div class="lbl">Started checkout</div></div>
+    <div class="stat"><div class="num" style="color:var(--available-hover)">{{ summary.booked_total }}</div><div class="lbl">Booked ({{ summary.booked_online }} online + {{ summary.booked_cash }} cash)</div></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Funnel</h2>
+    <table style="width:100%;">
+      <thead><tr><th>Step</th><th>Rate</th></tr></thead>
+      <tbody>
+        <tr><td>Visit &rarr; clicked "Book Your Seat"</td><td>{% if summary.rate_visit_to_click is not none %}{{ summary.rate_visit_to_click }}%{% else %}—{% endif %}</td></tr>
+        <tr><td>Clicked Book &rarr; selected a seat</td><td>{% if summary.rate_click_to_seat is not none %}{{ summary.rate_click_to_seat }}%{% else %}—{% endif %}</td></tr>
+        <tr><td>Selected a seat &rarr; started checkout</td><td>{% if summary.rate_seat_to_checkout is not none %}{{ summary.rate_seat_to_checkout }}%{% else %}—{% endif %}</td></tr>
+        <tr><td>Started checkout &rarr; booked online</td><td>{% if summary.rate_checkout_to_booked is not none %}{{ summary.rate_checkout_to_booked }}%{% else %}—{% endif %}</td></tr>
+        <tr><td><strong>Visit &rarr; booked online (overall)</strong></td><td><strong>{% if summary.rate_visit_to_booked is not none %}{{ summary.rate_visit_to_booked }}%{% else %}—{% endif %}</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">By day</h2>
+    <table style="width:100%;">
+      <thead><tr><th>Date</th><th>Visits</th><th>Booked online</th><th>Booked cash</th></tr></thead>
+      <tbody>
+        {% for row in daily_rows|reverse %}
+        <tr>
+          <td>{{ row.date.strftime("%d %b %Y") }}</td>
+          <td>{{ row.visits }}</td>
+          <td>{{ row.booked_online }}</td>
+          <td>{{ row.booked_cash }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" style="text-align:center;color:var(--grey-light);">No data yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

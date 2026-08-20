@@ -7,6 +7,7 @@ from flask import Blueprint, render_template, session, jsonify, request, current
 from extensions import db, csrf, limiter
 from models import Seat, Booking, SeatStatus, PaymentMethod, PaymentStatus
 from seats import sweep_expired_holds, release_seats
+from analytics import Event, log_event
 import payments
 import ticketing
 import wallet
@@ -25,6 +26,7 @@ def ensure_session_id():
 @public_bp.route("/")
 def index():
     sweep_expired_holds()
+    log_event(Event.PAGE_VIEW, session.get("sid"))
     cfg = current_app.config
     return render_template(
         "index.html",
@@ -68,6 +70,7 @@ def checkout():
         current_app.logger.exception("Stripe checkout session creation failed")
         return jsonify({"ok": False, "error": f"Payment setup failed: {exc}"}), 500
 
+    log_event(Event.CHECKOUT_STARTED, sid, meta=str(len(seat_ids)))
     return jsonify({"ok": True, "checkout_url": checkout_session.url})
 
 

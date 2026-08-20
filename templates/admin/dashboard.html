@@ -7,6 +7,7 @@
     {% if current_user.is_superadmin %}
     <a class="btn small secondary" href="{{ url_for('admin.manage_admins') }}">Manage admins</a>
     {% endif %}
+    <a class="btn small secondary" href="{{ url_for('admin.analytics') }}">Marketing analytics</a>
     <a class="btn small secondary" href="{{ url_for('admin.report') }}">Download report (.xlsx)</a>
     <a class="btn small secondary" href="{{ url_for('admin.logout') }}">Log out</a>
   </div>

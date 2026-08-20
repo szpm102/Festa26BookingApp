@@ -73,6 +73,13 @@ that in mind close to the event.
   Excel export - every booking's name, email, seats, amount, payment
   method/status, and check-in detail per seat. Good for reconciling with
   Stripe payouts or for committee records.
+- Click **"Marketing analytics"** for a separate report on how visitors
+  move through the booking flow: page views, how many clicked "Book Your
+  Seat", how many selected a seat, how many started checkout, and how many
+  actually completed a booking - with the conversion rate at each step, a
+  day-by-day breakdown, and its own Excel export. No personal data is
+  tracked - just anonymous counts per browser session. Filter to the last
+  7 or 30 days, or leave it on "All time".
 
 ## 6. Checking guests in on the day
 

@@ -130,4 +130,16 @@
   } else {
     cards.forEach((card) => card.classList.add("in-view"));
   }
+
+  // ---- Marketing funnel: log the "Book Your Seat" CTA click ------------
+  const bookCta = document.getElementById("book-cta");
+  if (bookCta) {
+    bookCta.addEventListener("click", () => {
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_type: "book_cta_click" }),
+      }).catch(() => {});
+    });
+  }
 })();

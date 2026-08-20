@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request, session, current_app
 
 from models import Seat, SeatStatus
 from seats import sweep_expired_holds, hold_seats, release_seats
+from analytics import Event, log_event, has_event, CLIENT_LOGGABLE_EVENTS
 from extensions import csrf, limiter
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -64,8 +65,24 @@ def hold():
     ok_ids, failed_ids = hold_seats([seat_id], sid, hold_until)
 
     if ok_ids:
+        if not has_event(Event.SEAT_SELECTED, sid):
+            log_event(Event.SEAT_SELECTED, sid)
         return jsonify({"ok": True, "seats": _serialize_seats(sid)})
     return jsonify({"ok": False, "error": "That seat was just taken. Please pick another.", "seats": _serialize_seats(sid)}), 409
+
+
+@api_bp.route("/track", methods=["POST"])
+@limiter.limit("30 per minute")
+def track():
+    """Fire-and-forget client-side interaction logging for the marketing
+    funnel report - restricted to a fixed allow-list so this can't be used
+    to write arbitrary event types."""
+    data = request.get_json(force=True) or {}
+    event_type = data.get("event_type")
+    if event_type not in CLIENT_LOGGABLE_EVENTS:
+        return jsonify({"ok": False}), 400
+    log_event(event_type, session.get("sid"))
+    return jsonify({"ok": True})
 
 
 @api_bp.route("/release", methods=["POST"])
