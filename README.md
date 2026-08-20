@@ -6,6 +6,18 @@ visitor is checking out, paid via Stripe, and permanently marked booked once
 payment succeeds. Admins can also book a seat manually for a cash payment, or
 disable a seat entirely (e.g. reserved seating).
 
+## Documentation
+
+- **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** - for the SZPM committee and
+  door staff: logging in, cash bookings, checking guests in, reports,
+  managing admin accounts. No coding knowledge needed.
+- **[docs/TECHNICAL.md](docs/TECHNICAL.md)** - architecture, data model,
+  request flows, configuration reference, and a troubleshooting playbook
+  built from real deployment issues.
+
+The rest of this README is a quicker technical reference; the two docs
+above go into more depth on each side.
+
 ## How it works
 
 - **Seat states**: `available` -> `held` (temporary, ~7 min, while someone is
@@ -76,10 +88,11 @@ Add `--superadmin` at the end to give that account full rights too.
 ## IMPORTANT - seat layout is a placeholder
 
 No real venue seating chart was available yet, so `seat_config.py` currently
-generates a generic 20-row x 15-seat grid (rows A-T) = 300 seats. **Send over
-the actual seating plan for Andrijiet Street** (sections, rows, numbering) and
-this file should be updated to match before going live - seat labels shown to
-the public should match what's physically marked/painted at the venue.
+generates a generic 5-row x 60-seat grid (rows A-E), single "Main" section =
+300 seats. **Send over the actual seating plan for Andrijiet Street**
+(sections, rows, numbering) and this file should be updated to match before
+going live - seat labels shown to the public should match what's physically
+marked/painted at the venue.
 
 ## Local setup
 
