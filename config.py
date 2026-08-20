@@ -45,7 +45,6 @@ class Config:
     EVENT_DATE_TEXT = "Saturday, 12th September 2026"
     EVENT_TIME_TEXT = "21:30"
     EVENT_DATETIME_ISO = "2026-09-12T21:30:00"
-    EVENT_ORGANISERS = "Government of Malta - Ministry for Gozo | Munxar Local Council"
 
     # Wider festa program (this site only sells seats for "Light Up the Sky",
     # but the home page cross-promotes the full week so visitors see this is

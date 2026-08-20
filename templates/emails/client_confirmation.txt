@@ -24,5 +24,3 @@ Download the full PDF (all seats) again anytime:
 Please keep this email as proof of your booking.
 
 {{ cfg.REFUND_POLICY_TEXT }} {{ cfg.PRIVACY_NOTICE_TEXT }}
-
-{{ cfg.EVENT_ORGANISERS }}
