@@ -518,7 +518,7 @@ input[type=text], input[type=email], input[type=tel], input[type=password], text
   background: #f7f4f2;
   border-radius: 10px;
   padding: 12px 18px;
-  height: 76px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -527,21 +527,21 @@ input[type=text], input[type=email], input[type=tel], input[type=password], text
 }
 
 .sponsor-tile img {
-  max-height: 52px;
-  max-width: 230px;
+  max-height: 136px;
+  max-width: 420px;
   width: auto;
   height: auto;
   display: block;
 }
 
 .sponsor-tile-gold {
-  height: 58px;
+  height: 120px;
   padding: 8px 14px;
 }
 
 .sponsor-tile-gold img {
-  max-height: 38px;
-  max-width: 300px;
+  max-height: 104px;
+  max-width: 320px;
 }
 
 @media (hover: hover) and (pointer: fine) {
