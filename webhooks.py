@@ -14,6 +14,14 @@ csrf.exempt(webhooks_bp)
 
 @webhooks_bp.route("/stripe/webhook", methods=["POST"])
 def stripe_webhook():
+    # Fail closed, not open: verifying a signature against a blank secret is
+    # not meaningfully different from not verifying at all - refuse outright
+    # rather than let a misconfigured deployment silently accept forged
+    # "payment completed" requests.
+    if not current_app.config.get("STRIPE_WEBHOOK_SECRET"):
+        current_app.logger.error("STRIPE_WEBHOOK_SECRET is not configured - rejecting webhook request")
+        return jsonify({"error": "webhook not configured"}), 503
+
     payload = request.get_data()
     sig_header = request.headers.get("Stripe-Signature", "")
 
