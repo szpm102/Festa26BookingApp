@@ -108,6 +108,8 @@ class Config:
 
     # Sponsor logos, shown at the bottom of the home page. Image files live at
     # static/img/sponsors/main/<slug>.png and static/img/sponsors/gold/<slug>.png.
+    SPONSORS_EYEBROW = "With Sincere Thanks"
+    SPONSORS_TITLE = "Munxar Feast Is Proudly Supported By"
     SPONSORS_MAIN = [
         {"name": "Beam Lighting", "slug": "beam-lighting"},
         {"name": "Michael Hili Pig Rotisserie", "slug": "michael-hili"},
