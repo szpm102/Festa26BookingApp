@@ -186,26 +186,30 @@
   </p>
 </div>
 
+{% macro sponsor_tile(s, tier) %}
+<div class="sponsor-tile{{ ' sponsor-tile-gold' if tier == 'gold' else '' }}">
+  <img src="{{ url_for('static', filename='img/sponsors/' + tier + '/' + s.slug + '.png') }}?v={{ cfg.SPONSOR_ASSETS_VERSION }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy" draggable="false">
+</div>
+{% endmacro %}
+
 <section class="sponsors-section" id="sponsors">
   <div class="programme-inner">
     <div class="sponsor-tier">
       <div class="sponsor-tier-label">Main Sponsors</div>
-      <div class="sponsor-grid">
-        {% for s in cfg.SPONSORS_MAIN %}
-        <div class="sponsor-tile">
-          <img src="{{ url_for('static', filename='img/sponsors/main/' + s.slug + '.png') }}?v={{ cfg.SPONSOR_ASSETS_VERSION }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
+      <div class="sponsor-carousel" id="sponsor-carousel-main">
+        <div class="sponsor-carousel-track">
+          {% for s in cfg.SPONSORS_MAIN %}{{ sponsor_tile(s, 'main') }}{% endfor %}
+          {% for s in cfg.SPONSORS_MAIN %}{{ sponsor_tile(s, 'main') }}{% endfor %}
         </div>
-        {% endfor %}
       </div>
     </div>
     <div class="sponsor-tier">
       <div class="sponsor-tier-label sponsor-tier-label-gold">Gold Sponsors</div>
-      <div class="sponsor-grid sponsor-grid-gold">
-        {% for s in cfg.SPONSORS_GOLD %}
-        <div class="sponsor-tile sponsor-tile-gold">
-          <img src="{{ url_for('static', filename='img/sponsors/gold/' + s.slug + '.png') }}?v={{ cfg.SPONSOR_ASSETS_VERSION }}" alt="{{ s.name }}" title="{{ s.name }}" loading="lazy">
+      <div class="sponsor-carousel" id="sponsor-carousel-gold">
+        <div class="sponsor-carousel-track">
+          {% for s in cfg.SPONSORS_GOLD %}{{ sponsor_tile(s, 'gold') }}{% endfor %}
+          {% for s in cfg.SPONSORS_GOLD %}{{ sponsor_tile(s, 'gold') }}{% endfor %}
         </div>
-        {% endfor %}
       </div>
     </div>
   </div>
@@ -217,4 +221,5 @@
 </script>
 <script src="{{ url_for('static', filename='js/hero.js') }}?v={{ cfg.ASSET_VERSION }}"></script>
 <script src="{{ url_for('static', filename='js/booking.js') }}?v={{ cfg.ASSET_VERSION }}"></script>
+<script src="{{ url_for('static', filename='js/sponsor-carousel.js') }}?v={{ cfg.ASSET_VERSION }}"></script>
 {% endblock %}
