@@ -774,6 +774,86 @@ th { color: var(--grey-light); text-transform: uppercase; font-size: 0.75rem; }
   letter-spacing: 0.5px;
 }
 
+.programme-card {
+  cursor: pointer;
+}
+
+.programme-card:focus-visible {
+  outline: 2px solid var(--red-bright);
+  outline-offset: 2px;
+}
+
+.programme-card-poster-hint {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.72rem;
+  color: var(--grey-light);
+  opacity: 0.75;
+}
+
+/* Poster lightbox */
+.poster-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.poster-modal.open { display: flex; }
+
+.poster-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 2, 2, 0.88);
+}
+
+.poster-modal-content {
+  position: relative;
+  max-width: min(90vw, 640px);
+  max-height: 90vh;
+  animation: poster-pop 220ms var(--ease-out);
+}
+
+@keyframes poster-pop {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.poster-modal-content img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+
+.poster-modal-close {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--red-bright);
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.poster-modal-close:hover { background: var(--red); }
+
+@media (max-width: 480px) {
+  .poster-modal-close { top: -14px; right: 4px; }
+}
+
 /* Site sketch: illustrative map of the real street */
 .site-sketch-section {
   background: linear-gradient(180deg, #0b0605, #170d0b 60%);

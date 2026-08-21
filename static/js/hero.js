@@ -142,4 +142,44 @@
       }).catch(() => {});
     });
   }
+
+  // ---- Programme cards: click to view that event's poster ---------------
+  const posterModal = document.getElementById("poster-modal");
+  const posterImg = document.getElementById("poster-modal-img");
+  const posterClose = document.getElementById("poster-modal-close");
+
+  function openPoster(card) {
+    const src = card.getAttribute("data-poster");
+    if (!src) return;
+    posterImg.src = src;
+    posterImg.alt = (card.getAttribute("data-poster-name") || "") + " poster";
+    posterModal.classList.add("open");
+    posterModal.setAttribute("aria-hidden", "false");
+  }
+
+  function closePoster() {
+    posterModal.classList.remove("open");
+    posterModal.setAttribute("aria-hidden", "true");
+    posterImg.src = "";
+  }
+
+  if (posterModal) {
+    document.querySelectorAll(".programme-card").forEach((card) => {
+      card.addEventListener("click", (e) => {
+        if (e.target.closest(".programme-card-cta")) return; // let "Book seats" navigate normally
+        openPoster(card);
+      });
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openPoster(card);
+        }
+      });
+    });
+    posterClose.addEventListener("click", closePoster);
+    posterModal.querySelector(".poster-modal-backdrop").addEventListener("click", closePoster);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && posterModal.classList.contains("open")) closePoster();
+    });
+  }
 })();

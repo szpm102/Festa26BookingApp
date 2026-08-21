@@ -50,7 +50,10 @@
     </div>
     <div class="programme-grid">
       {% for item in cfg.PROGRAMME %}
-      <div class="programme-card{{ ' current' if item.current else '' }}" style="--i:{{ loop.index0 }}">
+      <div class="programme-card{{ ' current' if item.current else '' }}" style="--i:{{ loop.index0 }}"
+           data-poster="{{ url_for('static', filename='img/posters/' + item.key + '.jpg') }}?v={{ cfg.POSTER_ASSETS_VERSION }}"
+           data-poster-name="{{ item.name }}" tabindex="0" role="button"
+           aria-label="View the {{ item.name }} poster">
         {% if item.current %}<div class="programme-ribbon">You're booking this one</div>{% endif %}
         <div class="programme-card-name">{{ item.name }}</div>
         <div class="programme-card-tagline">{{ item.tagline }}</div>
@@ -61,11 +64,20 @@
         {% else %}
           <span class="programme-card-tag">Also part of the festa</span>
         {% endif %}
+        <span class="programme-card-poster-hint">&#128247; View poster</span>
       </div>
       {% endfor %}
     </div>
   </div>
 </section>
+
+<div class="poster-modal" id="poster-modal" aria-hidden="true">
+  <div class="poster-modal-backdrop"></div>
+  <div class="poster-modal-content" role="dialog" aria-modal="true">
+    <button type="button" class="poster-modal-close" id="poster-modal-close" aria-label="Close poster">&times;</button>
+    <img src="" alt="" id="poster-modal-img">
+  </div>
+</div>
 
 <section class="site-sketch-section">
   <div class="programme-inner">

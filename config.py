@@ -43,10 +43,15 @@ class Config:
     # one immediately instead of waiting out the cache lifetime.
     SPONSOR_ASSETS_VERSION = "3"
 
+    # Same idea for the event posters shown in the Programme section
+    # (static/img/posters/<key>.jpg) - these are expected to be swapped out
+    # again soon, so bump this whenever one is replaced.
+    POSTER_ASSETS_VERSION = "1"
+
     # Same idea for the site's own CSS/JS (also cached for hours under fixed
     # filenames) - bump whenever style.css or a template's <script> changes,
     # so the fix is visible immediately instead of only for new visitors.
-    ASSET_VERSION = "5"
+    ASSET_VERSION = "6"
 
     # Event details (from the official poster)
     EVENT_NAME = "Light Up the Sky - Fireworks Display"
