@@ -19,7 +19,17 @@ csrf.exempt(public_bp)
 
 @public_bp.before_app_request
 def ensure_session_id():
-    if "sid" not in session:
+    # Some in-app browsers (confirmed: Messenger's) don't reliably persist
+    # the session cookie between requests on the same page, so a seat held
+    # a moment ago can stop being recognised as "mine" a few seconds later.
+    # The client mirrors its session id in a custom header on every request
+    # (see booking.js) once it's had a chance to read it back from the
+    # server-rendered page - that header, when present, is authoritative
+    # for this request regardless of what the cookie does.
+    client_sid = request.headers.get("X-Session-Id")
+    if client_sid:
+        session["sid"] = client_sid
+    elif "sid" not in session:
         session["sid"] = uuid.uuid4().hex
     session.permanent = True
 

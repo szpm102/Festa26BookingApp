@@ -9,14 +9,21 @@
 
   let seats = [];
   let busy = false;
-  // Seat ids we ourselves successfully placed a hold on. Normally the
-  // server's own "held_mine" flag (matched by session cookie) is enough,
-  // but a mobile browser occasionally fails to send its session cookie on
-  // a request (seen on iOS Safari) - if that happens on a background poll,
-  // the server can no longer recognise the hold as ours and would report
-  // it as just "held" (someone else, mid-checkout), which visually looks
-  // like the seat is about to be lost even though we still hold it. Once
-  // we know a seat is ours, keep treating it that way until the server
+
+  // Some in-app browsers (confirmed: Messenger's) don't reliably persist
+  // the session cookie between requests on the same page - a seat held a
+  // moment ago can stop being recognised as ours a few seconds later. We
+  // read back the session id the server just rendered into this page load
+  // and resend it on every request ourselves, so identity stays stable for
+  // the lifetime of this page regardless of what the cookie does.
+  const CLIENT_SID = window.SID || "";
+  function withSid(headers) {
+    return Object.assign({}, headers, CLIENT_SID ? { "X-Session-Id": CLIENT_SID } : {});
+  }
+
+  // Seat ids we ourselves successfully placed a hold on - a belt-and-braces
+  // backstop on top of the above, in case identity ever mismatches anyway.
+  // Once we know a seat is ours, keep treating it that way until the server
   // says it's no longer held at all (expired, released, or booked).
   let myHeldIds = new Set();
 
@@ -172,7 +179,7 @@
 
   async function loadSeats() {
     try {
-      const res = await fetch("/api/seats");
+      const res = await fetch("/api/seats", { headers: withSid() });
       const data = await res.json();
       seats = data.seats;
       reconcileMine(seats);
@@ -188,7 +195,7 @@
       busy = true;
       const res = await fetch("/api/hold", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: withSid({ "Content-Type": "application/json" }),
         body: JSON.stringify({ seat_id: seat.id }),
       });
       const data = await res.json();
@@ -200,7 +207,7 @@
       busy = true;
       const res = await fetch("/api/release", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: withSid({ "Content-Type": "application/json" }),
         body: JSON.stringify({ seat_id: seat.id }),
       });
       const data = await res.json();
@@ -223,7 +230,7 @@
     try {
       const res = await fetch("/booking/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: withSid({ "Content-Type": "application/json" }),
         body: JSON.stringify(body),
       });
       const data = await res.json();
