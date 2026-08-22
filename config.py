@@ -55,7 +55,7 @@ class Config:
     # Same idea for the site's own CSS/JS (also cached for hours under fixed
     # filenames) - bump whenever style.css or a template's <script> changes,
     # so the fix is visible immediately instead of only for new visitors.
-    ASSET_VERSION = "8"
+    ASSET_VERSION = "9"
 
     # Event details (from the official poster)
     EVENT_NAME = "Light Up the Sky - Fireworks Display"

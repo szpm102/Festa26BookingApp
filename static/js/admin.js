@@ -105,6 +105,10 @@
   });
   document.getElementById("cash-cancel").addEventListener("click", () => panel.classList.remove("open"));
 
+  const cashSubmitBtn = document.getElementById("cash-submit");
+  const cashCancelBtn = document.getElementById("cash-cancel");
+  const cashSubmitLabel = cashSubmitBtn.textContent;
+
   document.getElementById("cash-submit").addEventListener("click", async () => {
     const name = document.getElementById("cash-name").value.trim();
     const email = document.getElementById("cash-email").value.trim();
@@ -112,23 +116,37 @@
     const notes = document.getElementById("cash-notes").value.trim();
     if (!name || !email) { alert("Name and email are required."); return; }
 
-    const res = await fetch("/admin/api/bookings/cash", {
-      method: "POST", headers: headers(),
-      body: JSON.stringify({ seat_ids: [...selected], name, email, phone, notes }),
-    });
-    const data = await res.json();
-    if (data.ok) {
-      alert(`Booking ${data.reference} created.`);
-      selected.clear();
-      panel.classList.remove("open");
-      document.getElementById("cash-name").value = "";
-      document.getElementById("cash-email").value = "";
-      document.getElementById("cash-phone").value = "";
-      document.getElementById("cash-notes").value = "";
-      location.reload();
-    } else {
-      alert(data.error || "Could not create booking.");
-      await loadSeats();
+    // Creating the booking also sends the confirmation email before
+    // responding, which can take a few seconds - without this, the button
+    // looked identical whether it was working or stuck.
+    cashSubmitBtn.disabled = true;
+    cashSubmitBtn.textContent = "Processing...";
+    cashCancelBtn.disabled = true;
+    try {
+      const res = await fetch("/admin/api/bookings/cash", {
+        method: "POST", headers: headers(),
+        body: JSON.stringify({ seat_ids: [...selected], name, email, phone, notes }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert(`Booking ${data.reference} created.`);
+        selected.clear();
+        panel.classList.remove("open");
+        document.getElementById("cash-name").value = "";
+        document.getElementById("cash-email").value = "";
+        document.getElementById("cash-phone").value = "";
+        document.getElementById("cash-notes").value = "";
+        location.reload();
+      } else {
+        alert(data.error || "Could not create booking.");
+        await loadSeats();
+      }
+    } catch (err) {
+      alert("Network error - please check whether the booking went through before trying again.");
+    } finally {
+      cashSubmitBtn.disabled = false;
+      cashSubmitBtn.textContent = cashSubmitLabel;
+      cashCancelBtn.disabled = false;
     }
   });
 
