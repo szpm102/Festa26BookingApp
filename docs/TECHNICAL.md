@@ -32,7 +32,7 @@ config.py            All configuration (env-var driven, see section 6)
 extensions.py        Shared Flask extension instances (db, login, csrf, limiter)
 models.py            Seat / Booking / Admin tables + status enums
 seats.py             Atomic seat state transitions (hold/release/book/disable)
-seat_config.py        The 300-seat layout - SEE NOTE IN SECTION 9
+seat_config.py        The real 300-seat layout (5 sections x 60 seats) - see section 3
 payments.py          Stripe Checkout session creation/retrieval
 webhooks.py          Stripe webhook handler - the only place bookings become "paid"
 emailer.py           Confirmation emails (client + team), builds QR/PDF/wallet attachments
@@ -52,6 +52,41 @@ docs/                 This file + USER_GUIDE.md
 ```
 
 ## 3. Data model
+
+### Seating plan (`seat_config.py`)
+
+The real, finalised layout (source: `SeatingPlanStructure.xlsx`) - 5 sections
+placed side by side across the closed-off street (`A`-`E`), each 10 seats
+wide and 6 rows deep (60 seats/section = 300 total), with an 80cm gap
+between adjacent sections. `SEAT_LAYOUT` generates one entry per seat with:
+
+- `label` - e.g. `A23` (section + a running 1-60 number within it, matching
+  the spreadsheet's own numbering exactly)
+- `section` - `A`-`E`
+- `row` - `1`-`6`, depth within that section (derived from the running
+  number: `row = ((n-1) // 10) + 1`)
+- `number` - `1`-`10`, position within that row (`((n-1) % 10) + 1`)
+
+Only part of the plan opens for booking at first: `FIRST_BATCH_LABELS`
+(sections A and B, minus their back row - 100 seats) seed as `available`;
+everything else (200 seats) seeds as `disabled` and gets opened later from
+the admin dashboard (select seats on the map -> "Enable selected") as the
+committee confirms more of the road, no code change needed.
+
+`seed.py` is safe to re-run at any point to apply a corrected layout: it
+matches existing rows by `label` and always corrects `section`/`row`/
+`number` (harmless - never touches a booking), but only sets a seat's
+open/closed status if that seat is still untouched (`available`) - it never
+overrides a seat that's already booked, held, or one an admin has
+deliberately disabled/enabled by hand.
+
+Two places order seats by `(section, row_label, seat_number)` rather than
+just `(row_label, seat_number)` - `routes_admin.py`'s `/api/seats` and
+`routes_api.py`'s `_serialize_seats` - since row numbers alone (`1`-`6`)
+repeat across every section and would otherwise interleave sections when
+sorted. The seat map rendering (both the public SVG in `booking.js` and the
+admin's plain grid in `admin.js`) groups by section first, then by row
+within it, drawing the 5 blocks side by side with a gap between them.
 
 ### `Seat` (table `seats`)
 One row per physical seat (300 total). Key fields:
@@ -381,13 +416,6 @@ silently.
 
 ## 10. Known open items
 
-- **`seat_config.py` is still a placeholder layout** (5 rows A-E x 60 seats
-  = 300, single "Main" section) because no real venue seating chart was
-  available yet. Update `SEAT_LAYOUT` to match the actual Andrijiet Street
-  plan (sections/rows/numbering) before relying on seat labels matching
-  what's physically marked at the venue, then re-run `seed.py` (it only adds
-  new seats, so clear the `seats` table first if the layout changes
-  significantly and no real bookings exist yet).
 - No database migration tool is set up (fine pre-launch; add one, e.g.
   Alembic, before this holds long-lived production data across schema
   changes).

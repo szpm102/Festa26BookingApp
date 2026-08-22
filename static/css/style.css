@@ -287,6 +287,17 @@ body {
   font-size: 0.8rem;
 }
 
+.seat-section-heading {
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 10px 0 2px;
+}
+
+.seat-section-heading:first-child { margin-top: 0; }
+
 .seat {
   width: 30px;
   height: 30px;
@@ -345,6 +356,13 @@ body {
   fill: var(--grey-light);
   font-size: 11px;
   font-weight: 700;
+}
+
+.map-section-label {
+  fill: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .map-tick {

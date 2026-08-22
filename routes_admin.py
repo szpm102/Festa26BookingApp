@@ -89,7 +89,7 @@ def dashboard():
 @login_required
 def admin_seats():
     sweep_expired_holds()
-    seats = Seat.query.order_by(Seat.row_label, Seat.seat_number).all()
+    seats = Seat.query.order_by(Seat.section, Seat.row_label, Seat.seat_number).all()
     out = []
     for s in seats:
         entry = {

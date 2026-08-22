@@ -85,14 +85,17 @@ python seed.py add-admin door-staff@szpm.mt somepassword
 
 Add `--superadmin` at the end to give that account full rights too.
 
-## IMPORTANT - seat layout is a placeholder
+## Seat layout
 
-No real venue seating chart was available yet, so `seat_config.py` currently
-generates a generic 5-row x 60-seat grid (rows A-E), single "Main" section =
-300 seats. **Send over the actual seating plan for Andrijiet Street**
-(sections, rows, numbering) and this file should be updated to match before
-going live - seat labels shown to the public should match what's physically
-marked/painted at the venue.
+`seat_config.py` generates the real, finalised layout (source:
+`SeatingPlanStructure.xlsx`): 5 sections side by side across the closed-off
+street (A-E), 10 seats wide x 6 rows deep each (300 total), with an 80cm gap
+between adjacent sections. Only sections A and B (minus their back row -
+100 seats) open for booking at first; the remaining 200 seed as `disabled`
+and can be opened later from the admin dashboard (select seats on the map,
+click "Enable selected") as more of the road is confirmed - no code change
+needed. See [docs/TECHNICAL.md](docs/TECHNICAL.md) section 3 for the full
+details.
 
 ## Local setup
 
@@ -279,7 +282,7 @@ by accident.
 - `app.py` - Flask app factory / entry point
 - `models.py` - Seat / Booking / Admin database tables
 - `seats.py` - atomic seat state transitions (hold/release/book/disable)
-- `seat_config.py` - the 300-seat layout (placeholder - replace with the real chart)
+- `seat_config.py` - the real 300-seat layout (5 sections x 60 seats) and which seats open first
 - `payments.py` - Stripe Checkout integration
 - `webhooks.py` - Stripe webhook handler that finalises paid bookings
 - `emailer.py` - confirmation emails (client + team), with the QR + PDF ticket attached

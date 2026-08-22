@@ -28,12 +28,17 @@ def index():
     sweep_expired_holds()
     log_event(Event.PAGE_VIEW, session.get("sid"))
     cfg = current_app.config
+    # Not all 300 seats are necessarily open for booking yet (see
+    # seat_config.FIRST_BATCH_LABELS) - the promo copy should reflect
+    # however many are actually released, not the eventual full capacity.
+    opened_seats = Seat.query.filter(Seat.status != SeatStatus.DISABLED).count()
     return render_template(
         "index.html",
         cfg=cfg,
         stripe_publishable_key=cfg["STRIPE_PUBLISHABLE_KEY"],
         seat_price=cfg["SEAT_PRICE_EUR"],
         hold_minutes=cfg["SEAT_HOLD_MINUTES"],
+        opened_seats=opened_seats,
     )
 
 

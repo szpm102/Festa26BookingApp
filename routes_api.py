@@ -14,7 +14,17 @@ MAX_SEATS_PER_SESSION = 10
 
 
 def _serialize_seats(sid):
-    seats = Seat.query.order_by(Seat.row_label, Seat.seat_number).all()
+    # Disabled seats (not yet released - see seat_config.FIRST_BATCH_LABELS)
+    # are omitted entirely from the public seat list, not just shown as
+    # unavailable, so visitors never see hints of sections/rows that
+    # haven't opened yet. The admin's own seat list (routes_admin.py) is a
+    # separate query and still includes them, since staff need to see and
+    # enable them later.
+    seats = (
+        Seat.query.filter(Seat.status != SeatStatus.DISABLED)
+        .order_by(Seat.section, Seat.row_label, Seat.seat_number)
+        .all()
+    )
     out = []
     for s in seats:
         status = s.status

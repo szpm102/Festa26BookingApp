@@ -11,36 +11,48 @@
   }
 
   function render() {
-    const byRow = {};
+    // Group by section first, then by row within that section - 5 blocks
+    // (A..E) side by side in the real venue, each 6 rows deep, not one
+    // continuous row spanning all sections.
+    const bySection = {};
     seats.forEach((s) => {
-      byRow[s.row] = byRow[s.row] || [];
-      byRow[s.row].push(s);
+      bySection[s.section] = bySection[s.section] || {};
+      bySection[s.section][s.row] = bySection[s.section][s.row] || [];
+      bySection[s.section][s.row].push(s);
     });
-    const rows = Object.keys(byRow).sort();
+    const sections = Object.keys(bySection).sort();
     mapEl.innerHTML = "";
-    rows.forEach((row) => {
-      const rowDiv = document.createElement("div");
-      rowDiv.className = "seat-row";
-      const label = document.createElement("div");
-      label.className = "row-label";
-      label.textContent = row;
-      rowDiv.appendChild(label);
+    sections.forEach((section) => {
+      const sectionHeading = document.createElement("div");
+      sectionHeading.className = "seat-section-heading";
+      sectionHeading.textContent = "Section " + section;
+      mapEl.appendChild(sectionHeading);
 
-      byRow[row]
-        .sort((a, b) => a.number - b.number)
-        .forEach((seat) => {
-          const btn = document.createElement("button");
-          let cls = `seat status-${seat.status}`;
-          if (selected.has(seat.id)) cls += " selected";
-          btn.className = cls;
-          btn.textContent = seat.number;
-          btn.title = seat.status === "booked"
-            ? `${seat.label} - ${seat.attendee_name || ""} (${seat.reference || ""})`
-            : `Seat ${seat.label}`;
-          btn.addEventListener("click", () => onSeatClick(seat));
-          rowDiv.appendChild(btn);
-        });
-      mapEl.appendChild(rowDiv);
+      const rows = Object.keys(bySection[section]).sort();
+      rows.forEach((row) => {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "seat-row";
+        const label = document.createElement("div");
+        label.className = "row-label";
+        label.textContent = row;
+        rowDiv.appendChild(label);
+
+        bySection[section][row]
+          .sort((a, b) => a.number - b.number)
+          .forEach((seat) => {
+            const btn = document.createElement("button");
+            let cls = `seat status-${seat.status}`;
+            if (selected.has(seat.id)) cls += " selected";
+            btn.className = cls;
+            btn.textContent = seat.number;
+            btn.title = seat.status === "booked"
+              ? `${seat.label} - ${seat.attendee_name || ""} (${seat.reference || ""})`
+              : `Seat ${seat.label}`;
+            btn.addEventListener("click", () => onSeatClick(seat));
+            rowDiv.appendChild(btn);
+          });
+        mapEl.appendChild(rowDiv);
+      });
     });
     countEl.textContent = selected.size;
   }

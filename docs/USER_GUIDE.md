@@ -66,6 +66,14 @@ on sale, select it and click **"Enable selected"**. Disabling a seat that
 someone is *currently* mid-checkout on will cancel their hold - use with
 that in mind close to the event.
 
+**Opening the next batch of seats:** only sections A and B (minus their
+back row) are open for booking at first - the rest of the plan (the back
+row of A/B, plus all of sections C, D, E) starts out shown in grey
+("disabled") on the seat map. When the committee is ready to open more of
+the road, just select those seats on the map and click **"Enable
+selected"** - no code change or developer needed, and it takes effect
+immediately.
+
 ## 5. Bookings list and reports
 
 - The **Bookings** table on the dashboard shows everything as it happens.

@@ -26,7 +26,7 @@
   <div class="promo-inner">
     <div class="promo-text">
       <span class="promo-flame">&#128293;</span>
-      Don't miss it &mdash; only <strong>300 seats</strong> available for the best view in Munxar.
+      Don't miss it &mdash; only <strong>{{ opened_seats }} seats</strong> available for the best view in Munxar.
     </div>
     <div class="promo-countdown" id="countdown" aria-label="Time remaining until the display">
       <div class="cd-unit"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">days</span></div>
@@ -136,7 +136,7 @@
 
         <line x1="197" y1="332" x2="120" y2="298" class="sketch-leader"></line>
         <text x="112" y="291" class="sketch-seating-label" text-anchor="end">SEATING ZONE</text>
-        <text x="112" y="307" class="sketch-seating-label-sm" text-anchor="end">300 seats, 5 rows</text>
+        <text x="112" y="307" class="sketch-seating-label-sm" text-anchor="end">300 seats, 5 sections</text>
       </svg>
       <p class="sketch-note">
         Illustrative sketch, not surveyed to exact scale. Andrijiet Street closes to traffic for the
@@ -155,7 +155,8 @@
       Tap a seat to hold it for {{ hold_minutes }} minutes while you complete your booking
       (&euro;{{ "%.2f"|format(seat_price) }} per seat). Seats already taken are shown in black.
       Andrijiet Street will be closed to traffic for the event: seating is placed directly on the
-      road, with row A nearest the fireworks field and row E furthest back, nearest the houses.
+      road, arranged in 5 sections side by side (A&ndash;E), each 6 rows deep &mdash; row 1 nearest
+      the fireworks field, row 6 furthest back, nearest the houses.
     </p>
     <p id="map-scale-caption" style="color:var(--grey-light); font-size:0.8rem; margin-top:-8px;"></p>
 
@@ -164,7 +165,6 @@
       <span><i class="swatch sw-selected"></i> Your selection</span>
       <span><i class="swatch sw-held"></i> Held by someone else</span>
       <span><i class="swatch sw-booked"></i> Booked</span>
-      <span><i class="swatch sw-disabled"></i> Not available</span>
     </div>
 
     <div id="seat-map"><p>Loading seat map...</p></div>
