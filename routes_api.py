@@ -13,6 +13,21 @@ csrf.exempt(api_bp)
 MAX_SEATS_PER_SESSION = 10
 
 
+def _adjacency_ok(seat, sid):
+    """When REQUIRE_ADJACENT_SEATS is on, this session's held seats within the
+    same section/row (including the candidate seat) must form one unbroken
+    run of seat numbers, so nobody ends up splitting a row with a stray
+    empty seat between two different parties."""
+    held = Seat.query.filter(
+        Seat.status == SeatStatus.HELD,
+        Seat.held_by_session == sid,
+        Seat.section == seat.section,
+        Seat.row_label == seat.row_label,
+    ).all()
+    numbers = sorted({s.seat_number for s in held} | {seat.seat_number})
+    return numbers[-1] - numbers[0] + 1 == len(numbers)
+
+
 def _serialize_seats(sid):
     # Disabled seats (not yet released - see seat_config.FIRST_BATCH_LABELS)
     # are omitted entirely from the public seat list, not just shown as
@@ -70,6 +85,17 @@ def hold():
             "ok": False,
             "error": f"You can select at most {MAX_SEATS_PER_SESSION} seats per booking.",
         }), 400
+
+    if current_app.config["REQUIRE_ADJACENT_SEATS"]:
+        seat = Seat.query.get(seat_id)
+        if seat is None:
+            return jsonify({"ok": False, "error": "Seat not found."}), 404
+        if not _adjacency_ok(seat, sid):
+            return jsonify({
+                "ok": False,
+                "error": "For now, please pick seats next to your other selected seat(s) in the same row.",
+                "seats": _serialize_seats(sid),
+            }), 400
 
     hold_until = datetime.utcnow() + current_app.config["SEAT_HOLD_DURATION"]
     ok_ids, failed_ids = hold_seats([seat_id], sid, hold_until)

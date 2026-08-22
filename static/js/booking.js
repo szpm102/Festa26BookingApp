@@ -9,6 +9,16 @@
 
   let seats = [];
   let busy = false;
+  // Seat ids we ourselves successfully placed a hold on. Normally the
+  // server's own "held_mine" flag (matched by session cookie) is enough,
+  // but a mobile browser occasionally fails to send its session cookie on
+  // a request (seen on iOS Safari) - if that happens on a background poll,
+  // the server can no longer recognise the hold as ours and would report
+  // it as just "held" (someone else, mid-checkout), which visually looks
+  // like the seat is about to be lost even though we still hold it. Once
+  // we know a seat is ours, keep treating it that way until the server
+  // says it's no longer held at all (expired, released, or booked).
+  let myHeldIds = new Set();
 
   function flash(message, type) {
     flashEl.innerHTML = `<div class="msg ${type}">${message}</div>`;
@@ -33,6 +43,19 @@
   const HOUSES_H = 3.2 * M, GAP_HOUSES_SEATS = 6;
   const ROAD_PAD = 20, GAP_SEATS_FIELD = 6; // extra top padding leaves room for the section labels
   const FIELD_H = 5.5 * M, BOTTOM_PAD = 18;
+
+  function reconcileMine(seatList) {
+    seatList.forEach((seat) => {
+      if (seat.status === "held_mine") {
+        myHeldIds.add(seat.id);
+      } else if (seat.status === "held" && myHeldIds.has(seat.id)) {
+        seat.status = "held_mine";
+        seat.mine = true;
+      } else {
+        myHeldIds.delete(seat.id);
+      }
+    });
+  }
 
   function el(tag, attrs) {
     const node = document.createElementNS(SVGNS, tag);
@@ -152,6 +175,7 @@
       const res = await fetch("/api/seats");
       const data = await res.json();
       seats = data.seats;
+      reconcileMine(seats);
       render();
     } catch (e) {
       // silent retry on next poll
@@ -168,7 +192,7 @@
         body: JSON.stringify({ seat_id: seat.id }),
       });
       const data = await res.json();
-      if (data.seats) seats = data.seats;
+      if (data.seats) { seats = data.seats; reconcileMine(seats); }
       if (!data.ok) flash(data.error || "Could not hold that seat.", "error");
       render();
       busy = false;
@@ -180,7 +204,8 @@
         body: JSON.stringify({ seat_id: seat.id }),
       });
       const data = await res.json();
-      if (data.seats) seats = data.seats;
+      myHeldIds.delete(seat.id);
+      if (data.seats) { seats = data.seats; reconcileMine(seats); }
       render();
       busy = false;
     }

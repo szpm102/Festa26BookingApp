@@ -11,7 +11,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from extensions import db, csrf, limiter
 from models import Seat, Booking, Admin, SeatStatus, PaymentMethod, PaymentStatus
 from seats import disable_seats, enable_seats, confirm_seats_for_booking, cancel_booking, sweep_expired_holds
-from utils import generate_reference
+from utils import generate_reference, is_valid_email
 from reports import build_bookings_report, build_analytics_report
 from analytics import Event, log_event, funnel_summary, daily_breakdown
 import emailer
@@ -135,6 +135,8 @@ def api_book_cash():
         return jsonify({"ok": False, "error": "No seats selected."}), 400
     if not name or not email:
         return jsonify({"ok": False, "error": "Name and email are required."}), 400
+    if not is_valid_email(email):
+        return jsonify({"ok": False, "error": "That email address doesn't look valid - the ticket can't be delivered without a correct one."}), 400
 
     seats = Seat.query.filter(Seat.id.in_(seat_ids)).all()
     valid_statuses = {SeatStatus.AVAILABLE, SeatStatus.HELD}
@@ -233,6 +235,9 @@ def checkin(token):
     if not seat:
         flash(f"No ticket found for '{token}'.", "error")
         return redirect(url_for("admin.dashboard"))
+    if not seat.booking or seat.booking.payment_status == PaymentStatus.CANCELLED:
+        flash(f"Seat {seat.label}'s booking has been cancelled - this ticket is no longer valid.", "error")
+        return redirect(url_for("admin.dashboard"))
     just_checked_in = request.args.get("just_now") == "1"
     return render_template(
         "admin/checkin.html", cfg=current_app.config, seat=seat, booking=seat.booking,
@@ -246,6 +251,9 @@ def checkin_confirm(token):
     seat = Seat.query.filter_by(checkin_token=token).first()
     if not seat:
         flash(f"No ticket found for '{token}'.", "error")
+        return redirect(url_for("admin.dashboard"))
+    if not seat.booking or seat.booking.payment_status == PaymentStatus.CANCELLED:
+        flash(f"Seat {seat.label}'s booking has been cancelled - this ticket is no longer valid.", "error")
         return redirect(url_for("admin.dashboard"))
 
     just_now = False

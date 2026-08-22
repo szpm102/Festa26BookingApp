@@ -6,12 +6,12 @@
   <title>{% block title %}{{ cfg.SITE_TITLE }}{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="alternate icon" href="{{ url_for('static', filename='favicon.ico') }}">
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="manifest" href="{% block manifest_href %}{{ url_for('static', filename='manifest.webmanifest') }}{% endblock %}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icon-180.png') }}">
   <meta name="theme-color" content="#7a1418">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SZPM Festa 26">
+  <meta name="apple-mobile-web-app-title" content="{% block app_title %}SZPM Festa 26{% endblock %}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ cfg.ASSET_VERSION }}">
   {% block head %}{% endblock %}
 </head>

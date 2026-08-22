@@ -8,6 +8,7 @@ from extensions import db, csrf, limiter
 from models import Seat, Booking, SeatStatus, PaymentMethod, PaymentStatus
 from seats import sweep_expired_holds, release_seats
 from analytics import Event, log_event
+from utils import is_valid_email
 import payments
 import ticketing
 import wallet
@@ -55,6 +56,8 @@ def checkout():
 
     if not name or not email:
         return jsonify({"ok": False, "error": "Name and email are required."}), 400
+    if not is_valid_email(email):
+        return jsonify({"ok": False, "error": "That email address doesn't look valid - your ticket is sent there, so please double-check it."}), 400
 
     sid = session["sid"]
     held = Seat.query.filter(

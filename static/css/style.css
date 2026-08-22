@@ -492,6 +492,18 @@ input[type=text], input[type=email], input[type=tel], input[type=password], text
   margin-top: 30px;
 }
 
+.site-footer {
+  text-align: center;
+  padding: 28px 16px 40px;
+}
+.site-footer a {
+  color: var(--grey-light);
+  font-size: 0.78rem;
+  text-decoration: none;
+  opacity: 0.7;
+}
+.site-footer a:hover { opacity: 1; text-decoration: underline; }
+
 /* Sponsors */
 .sponsors-section {
   background: linear-gradient(180deg, #0b0605, #170d0b 60%);

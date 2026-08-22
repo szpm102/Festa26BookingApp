@@ -10,6 +10,10 @@ def _env(key, default=""):
     return os.environ.get(key) or default
 
 
+def _env_bool(key, default):
+    return _env(key, "true" if default else "false").strip().lower() in ("1", "true", "yes", "on")
+
+
 class Config:
     SECRET_KEY = _env("SECRET_KEY", "change-me-in-production")
 
@@ -51,7 +55,7 @@ class Config:
     # Same idea for the site's own CSS/JS (also cached for hours under fixed
     # filenames) - bump whenever style.css or a template's <script> changes,
     # so the fix is visible immediately instead of only for new visitors.
-    ASSET_VERSION = "7"
+    ASSET_VERSION = "8"
 
     # Event details (from the official poster)
     EVENT_NAME = "Light Up the Sky - Fireworks Display"
@@ -148,6 +152,13 @@ class Config:
     SEAT_PRICE_EUR = float(_env("SEAT_PRICE_EUR", "4.00"))
     SEAT_HOLD_MINUTES = int(_env("SEAT_HOLD_MINUTES", "7"))
     SEAT_HOLD_DURATION = timedelta(minutes=SEAT_HOLD_MINUTES)
+
+    # While seats are still scarce (early sales), require that a session's
+    # selected seats stay contiguous within the same section/row, so nobody
+    # ends up with a stray one-off seat sitting alone between two other
+    # parties. Turn off later (set to "false" in config.env + reload) once
+    # more sections are open and this no longer matters as much.
+    REQUIRE_ADJACENT_SEATS = _env_bool("REQUIRE_ADJACENT_SEATS", True)
 
     # Policy text shown on the booking page, in confirmation emails, and on
     # the PDF ticket. Edit here to change the wording everywhere at once.

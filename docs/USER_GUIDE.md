@@ -74,6 +74,13 @@ the road, just select those seats on the map and click **"Enable
 selected"** - no code change or developer needed, and it takes effect
 immediately.
 
+**Seats must be picked next to each other:** while seats are still scarce,
+a visitor can only select seats that stay next to their other selected
+seat(s) in the same row - this avoids one lone empty seat being stuck
+between two different parties. This is a temporary setting for the early
+sales period; ask whoever manages the technical side to turn it off
+(`REQUIRE_ADJACENT_SEATS`) once it's no longer needed.
+
 ## 5. Bookings list and reports
 
 - The **Bookings** table on the dashboard shows everything as it happens.
@@ -152,6 +159,14 @@ cash bookings, check-in, reports, resending emails - just not reset a
 check-in or manage other admin accounts.
 
 ## 9. Installing the site as an app on your phone
+
+There's a small **"Committee & door staff login"** link at the very bottom
+of the homepage - use that to get to the admin login without typing the
+URL. Door staff can also install a separate icon that opens straight to
+the admin login (handy for the scan page on event day): open
+`https://festa26.szpm.mt/admin/login` in your phone's browser first, then
+follow the same steps below - it installs as its own "Festa Admin" icon,
+separate from the public guest-facing app.
 
 Open `https://festa26.szpm.mt` in your phone's browser, then:
 - **iPhone (Safari)**: tap the Share icon -> "Add to Home Screen".

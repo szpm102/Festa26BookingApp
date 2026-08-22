@@ -286,6 +286,7 @@ default", not just a missing key. Loaded from `config.env` (or `.env`) via
 | `TOTAL_SEATS` | 300 | |
 | `SEAT_PRICE_EUR` | 4.00 | |
 | `SEAT_HOLD_MINUTES` | 7 | |
+| `REQUIRE_ADJACENT_SEATS` | true | While on, a session's held seats within the same section/row must stay contiguous (no gaps) - set to `false` + reload once this no longer needs enforcing |
 | `ADMIN_CONTACT_EMAIL` | admin@szpm.mt | Shown in the privacy notice text |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | placeholders | Used only by `seed.py` to create the first superadmin - change before running for real |
 | `WALLETWALLET_API_KEY` | blank (disables wallet passes) | |
