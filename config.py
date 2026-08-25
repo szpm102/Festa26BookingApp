@@ -50,7 +50,7 @@ class Config:
     # Same idea for the event posters shown in the Programme section
     # (static/img/posters/<key>.jpg) - these are expected to be swapped out
     # again soon, so bump this whenever one is replaced.
-    POSTER_ASSETS_VERSION = "1"
+    POSTER_ASSETS_VERSION = "2"
 
     # Same idea for the site's own CSS/JS (also cached for hours under fixed
     # filenames) - bump whenever style.css or a template's <script> changes,
