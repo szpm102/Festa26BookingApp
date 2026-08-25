@@ -74,10 +74,10 @@
     if (!seats.length) return;
     // Sections placed left to right in the order they come back from the
     // API (already section, row, number - see routes_api.py); rows drawn
-    // top (nearest the houses) to bottom (nearest the field), so the row
-    // closest to the fireworks field ends up numbered "1".
+    // top (nearest the fireworks field) to bottom (nearest the houses), so
+    // the row closest to the field ends up numbered "1".
     const sections = [...new Set(seats.map((s) => s.section))].sort();
-    const rows = [...new Set(seats.map((s) => s.row))].sort().reverse();
+    const rows = [...new Set(seats.map((s) => s.row))].sort();
     const seatsPerSectionRow = Math.max(...seats.map((s) => s.number));
 
     const blockWidth = seatsPerSectionRow * SEAT_W + (seatsPerSectionRow - 1) * SEAT_GAP;
@@ -85,12 +85,12 @@
     const width = MARGIN_X * 2 + seatsWidth;
     const seatingHeight = rows.length * ROW_H + (rows.length - 1) * ROW_GAP;
 
-    const housesY = MARGIN_TOP;
-    const roadY = housesY + HOUSES_H + GAP_HOUSES_SEATS;
+    const fieldY = MARGIN_TOP;
+    const roadY = fieldY + FIELD_H + GAP_SEATS_FIELD;
     const seatingY = roadY + ROAD_PAD;
     const roadH = ROAD_PAD * 2 + seatingHeight;
-    const fieldY = roadY + roadH + GAP_SEATS_FIELD;
-    const height = fieldY + FIELD_H + BOTTOM_PAD;
+    const housesY = roadY + roadH + GAP_HOUSES_SEATS;
+    const height = housesY + HOUSES_H + BOTTOM_PAD;
 
     const streetLengthM = (seatsWidth / M).toFixed(0);
     const rowsDepthM = (seatingHeight / M).toFixed(1);
@@ -105,24 +105,15 @@
       width: Math.max(width, 700),
       class: "seatmap-svg",
       role: "img",
-      "aria-label": "Seating map: houses, seats placed on the closed-off road, then the fireworks field",
+      "aria-label": "Seating map: the fireworks display field, seats placed on the closed-off road, then the houses",
     });
 
-    // Houses (behind the seating, opposite the field)
-    svg.appendChild(el("rect", { x: 0, y: housesY, width, height: HOUSES_H, class: "map-houses" }));
-    const houseW = 42, houseGap = 6;
-    for (let x = 4; x < width - 10; x += houseW + houseGap) {
-      const w = Math.min(houseW, width - 10 - x);
-      if (w < 16) break;
-      svg.appendChild(el("rect", { x, y: housesY + HOUSES_H * 0.35, width: w, height: HOUSES_H * 0.65, class: "map-house-body" }));
-      svg.appendChild(el("polygon", {
-        points: `${x - 2},${housesY + HOUSES_H * 0.35} ${x + w / 2},${housesY + HOUSES_H * 0.05} ${x + w + 2},${housesY + HOUSES_H * 0.35}`,
-        class: "map-house-roof",
-      }));
-    }
-    const housesLabel = el("text", { x: width / 2, y: housesY + HOUSES_H + 12, class: "map-label map-label-dim" });
-    housesLabel.textContent = "HOUSES — TRIQ ANDRIJIET";
-    svg.appendChild(housesLabel);
+    // Field (fireworks launch site, facing the seating)
+    svg.appendChild(el("rect", { x: 0, y: fieldY, width, height: FIELD_H, class: "map-field" }));
+    svg.appendChild(el("line", { x1: 0, y1: fieldY + FIELD_H, x2: width, y2: fieldY + FIELD_H, class: "map-field-boundary" }));
+    const fieldLabel = el("text", { x: width / 2, y: fieldY + FIELD_H / 2 + 4, class: "map-label" });
+    fieldLabel.textContent = "\u{1F386} FIREWORKS DISPLAY FIELD";
+    svg.appendChild(fieldLabel);
 
     // Road surface, with seats placed directly on it
     svg.appendChild(el("rect", { x: 0, y: roadY, width, height: roadH, class: "map-road" }));
@@ -162,12 +153,21 @@
         });
     });
 
-    // Field (fireworks launch site, opposite the houses)
-    svg.appendChild(el("rect", { x: 0, y: fieldY, width, height: FIELD_H, class: "map-field" }));
-    svg.appendChild(el("line", { x1: 0, y1: fieldY, x2: width, y2: fieldY, class: "map-field-boundary" }));
-    const fieldLabel = el("text", { x: width / 2, y: fieldY + FIELD_H / 2 + 4, class: "map-label" });
-    fieldLabel.textContent = "\u{1F386} FIREWORKS DISPLAY FIELD";
-    svg.appendChild(fieldLabel);
+    // Houses (behind the seating, opposite the field)
+    svg.appendChild(el("rect", { x: 0, y: housesY, width, height: HOUSES_H, class: "map-houses" }));
+    const houseW = 42, houseGap = 6;
+    for (let x = 4; x < width - 10; x += houseW + houseGap) {
+      const w = Math.min(houseW, width - 10 - x);
+      if (w < 16) break;
+      svg.appendChild(el("rect", { x, y: housesY + HOUSES_H * 0.35, width: w, height: HOUSES_H * 0.65, class: "map-house-body" }));
+      svg.appendChild(el("polygon", {
+        points: `${x - 2},${housesY + HOUSES_H * 0.35} ${x + w / 2},${housesY + HOUSES_H * 0.05} ${x + w + 2},${housesY + HOUSES_H * 0.35}`,
+        class: "map-house-roof",
+      }));
+    }
+    const housesLabel = el("text", { x: width / 2, y: housesY + HOUSES_H + 12, class: "map-label map-label-dim" });
+    housesLabel.textContent = "HOUSES — TRIQ ANDRIJIET";
+    svg.appendChild(housesLabel);
 
     mapEl.appendChild(svg);
 
