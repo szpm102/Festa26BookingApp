@@ -144,7 +144,6 @@ class Config:
         {"name": "Security First Services Ltd", "slug": "security-first"},
         {"name": "Tas-Sultan Electrician, Plumber, Handyman", "slug": "tas-sultan"},
         {"name": "Victoria Hotspurs Sports Bar", "slug": "victoria-hotspurs"},
-        {"name": "Woodaholic Gozo", "slug": "woodaholic"},
     ]
 
     # Seats
