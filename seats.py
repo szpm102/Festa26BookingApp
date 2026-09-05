@@ -117,7 +117,12 @@ def enable_seats(seat_ids):
 
 
 def cancel_booking(booking):
-    """Admin action: free up a booking's seats back to available (e.g. refund)."""
+    """Admin action: free up a booking's seats back to available (e.g. refund).
+
+    Also wipes each seat's check-in state and ticket/wallet identifiers -
+    without this, a seat that gets rebooked by someone else later would
+    inherit the previous occupant's leftover "checked in" timestamp and QR
+    token, making a brand-new booking look already checked in."""
     seat_ids = [s.id for s in booking.seats]
     Seat.query.filter(Seat.id.in_(seat_ids)).update(
         {
@@ -125,6 +130,11 @@ def cancel_booking(booking):
             Seat.held_by_session: None,
             Seat.held_until: None,
             Seat.booking_id: None,
+            Seat.checkin_token: None,
+            Seat.checked_in_at: None,
+            Seat.wallet_serial: None,
+            Seat.wallet_google_url: None,
+            Seat.wallet_apple_pass_b64: None,
         },
         synchronize_session=False,
     )
