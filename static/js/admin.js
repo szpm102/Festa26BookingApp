@@ -78,25 +78,35 @@
     render();
   }
 
-  document.getElementById("btn-disable").addEventListener("click", async () => {
+  // Disable/enable used to fail completely silently - a stale session (CSRF
+  // token expired after the page was open a while) or a seat that was
+  // already in the target state would just do nothing, with no way to
+  // tell the difference from a working click.
+  async function submitSeatAction(url) {
     if (!selected.size) return;
-    await fetch("/admin/api/seats/disable", {
-      method: "POST", headers: headers(),
-      body: JSON.stringify({ seat_ids: [...selected] }),
-    });
-    selected.clear();
-    await loadSeats();
-  });
+    const seatIds = [...selected];
+    try {
+      const res = await fetch(url, {
+        method: "POST", headers: headers(),
+        body: JSON.stringify({ seat_ids: seatIds }),
+      });
+      if (!res.ok) {
+        alert(`That didn't go through (server said ${res.status}). Try reloading the page and logging in again.`);
+        return;
+      }
+      const data = await res.json();
+      if (data.count === 0) {
+        alert("No seats were changed - they may already be in that state. Try reloading the page.");
+      }
+      selected.clear();
+      await loadSeats();
+    } catch (err) {
+      alert("Network error - please check your connection and try again.");
+    }
+  }
 
-  document.getElementById("btn-enable").addEventListener("click", async () => {
-    if (!selected.size) return;
-    await fetch("/admin/api/seats/enable", {
-      method: "POST", headers: headers(),
-      body: JSON.stringify({ seat_ids: [...selected] }),
-    });
-    selected.clear();
-    await loadSeats();
-  });
+  document.getElementById("btn-disable").addEventListener("click", () => submitSeatAction("/admin/api/seats/disable"));
+  document.getElementById("btn-enable").addEventListener("click", () => submitSeatAction("/admin/api/seats/enable"));
 
   const panel = document.getElementById("admin-panel");
   document.getElementById("btn-book-cash").addEventListener("click", () => {

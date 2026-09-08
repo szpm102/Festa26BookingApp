@@ -17,6 +17,14 @@ def _env_bool(key, default):
 class Config:
     SECRET_KEY = _env("SECRET_KEY", "change-me-in-production")
 
+    # Flask-WTF's default (1 hour) would silently start rejecting every
+    # admin action - seat enable/disable, cash bookings, check-ins - once a
+    # dashboard tab has been open that long, with no error shown to the
+    # admin (the CSRF token is read once at page load and never refreshed).
+    # Door staff realistically keep a tab open for the whole event, so this
+    # is tied to the login session itself rather than a short fixed window.
+    WTF_CSRF_TIME_LIMIT = None
+
     # Database (SQLite by default for local/dev; set DATABASE_URL in prod, e.g. Postgres)
     SQLALCHEMY_DATABASE_URI = _env(
         "DATABASE_URL", "sqlite:///" + os.path.join(basedir, "bookings.db")
@@ -55,7 +63,7 @@ class Config:
     # Same idea for the site's own CSS/JS (also cached for hours under fixed
     # filenames) - bump whenever style.css or a template's <script> changes,
     # so the fix is visible immediately instead of only for new visitors.
-    ASSET_VERSION = "11"
+    ASSET_VERSION = "12"
 
     # Event details (from the official poster)
     EVENT_NAME = "Light Up the Sky - Fireworks Display"
