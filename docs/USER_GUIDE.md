@@ -132,13 +132,16 @@ check-in page or the booking overview page.
 
 Open the booking on the dashboard (click its reference in the Bookings
 table, or type the reference into the manual lookup box), and click
-**"Resend confirmation email"** near the top of that page - it re-sends the
-same email with the same ticket(s) attached. This only appears for bookings
-marked "paid".
+**"Resend confirmation email"** near the top of that page - a box pops up
+showing the email currently on file; confirm it as-is, or **type a
+corrected address before confirming** if the guest gave the wrong one at
+booking time. Either way it re-sends the same ticket(s) to whichever
+address you confirm, and a corrected address is saved to the booking for
+next time too. This only appears for bookings marked "paid".
 
-If it still doesn't arrive after resending, check the guest typed their
-email correctly (it's shown on that same page), then ask whoever manages
-the technical side to check the server's error log - see
+If it still doesn't arrive after resending, check the address is right
+(it's shown on that same page, and the resend box lets you fix it), then
+ask whoever manages the technical side to check the server's error log - see
 [TECHNICAL.md](TECHNICAL.md) section 9 for what to look for.
 
 ## 8. Managing admin / door-staff accounts

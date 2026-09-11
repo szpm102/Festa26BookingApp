@@ -218,6 +218,21 @@ def resend_email(reference):
         flash("This booking isn't marked as paid - not resending a confirmation email.", "error")
         return redirect(url_for("admin.booking_overview", reference=booking.reference))
 
+    # The resend form prompts for the email to send to, pre-filled with the
+    # current one - lets a wrong address entered at booking time be
+    # corrected right here instead of needing a separate edit step.
+    new_email = (request.form.get("email") or "").strip()
+    if new_email and new_email != booking.email:
+        if not is_valid_email(new_email):
+            flash("That email address doesn't look valid - nothing was sent, and the booking's email wasn't changed.", "error")
+            return redirect(url_for("admin.booking_overview", reference=booking.reference))
+        current_app.logger.info(
+            "Booking %s email corrected from %s to %s by %s",
+            booking.reference, booking.email, new_email, current_user.email,
+        )
+        booking.email = new_email
+        db.session.commit()
+
     try:
         emailer.send_booking_confirmation(booking)
         flash(f"Confirmation email re-sent to {booking.email}.", "success")
