@@ -124,6 +124,14 @@ banner confirms it. If that seat gets scanned again later, it shows a **red
 that's the system protecting against a duplicate/shared ticket, and it's
 normal to see it if you accidentally scan the same ticket twice.
 
+**Checking in the rest of a group booking in one tap:** if the seat you just
+scanned or looked up belongs to a booking with other seats in it, a
+**"Check in remaining N seat(s)"** button appears listing them - if the
+whole party is there together, one tap checks all of them in without
+scanning each ticket individually. It only ever affects seats already
+shown as "not checked in", so it's safe to tap even if some of the group
+already checked in separately.
+
 **Resetting a check-in** (e.g. undoing an accidental test scan before the
 event) can only be done by a **superadmin** account, from that seat's
 check-in page or the booking overview page.

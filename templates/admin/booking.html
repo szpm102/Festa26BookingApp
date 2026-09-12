@@ -48,6 +48,17 @@
       use this page to check seats in manually if scanning isn't convenient.
     </p>
 
+    {% set remaining = booking.seats|rejectattr('checked_in_at')|list %}
+    {% if booking.payment_status == 'paid' and remaining|length > 1 %}
+    <form method="post" action="{{ url_for('admin.checkin_remaining', reference=booking.reference) }}" style="margin-bottom:14px;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% for s in remaining %}
+      <input type="hidden" name="seat_ids" value="{{ s.id }}">
+      {% endfor %}
+      <button type="submit" class="btn small">Check in all {{ remaining|length }} remaining seats</button>
+    </form>
+    {% endif %}
+
     <table style="width:100%;">
       <thead>
         <tr><th>Seat</th><th>Status</th><th></th></tr>

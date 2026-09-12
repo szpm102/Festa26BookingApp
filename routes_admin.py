@@ -280,6 +280,43 @@ def checkin_confirm(token):
     return redirect(url_for("admin.checkin", token=token, just_now="1" if just_now else None))
 
 
+@admin_bp.route("/booking/<reference>/checkin-remaining", methods=["POST"])
+@login_required
+def checkin_remaining(reference):
+    """Check in every not-yet-checked-in seat from an explicit id list in
+    one click - lets staff scan just one ticket in a group booking and
+    bring the rest of the party in with it, instead of scanning each seat
+    individually. Only ever touches seats that actually belong to this
+    booking, regardless of what ids are posted."""
+    booking = Booking.query.filter_by(reference=reference.strip().upper()).first()
+    if not booking:
+        flash(f"No booking found for '{reference}'.", "error")
+        return redirect(url_for("admin.dashboard"))
+
+    next_url = request.form.get("next") or ""
+    redirect_to = next_url if next_url.startswith("/admin/") else url_for("admin.booking_overview", reference=booking.reference)
+
+    if booking.payment_status != PaymentStatus.PAID:
+        flash("This booking isn't marked as paid - not checking any seats in.", "error")
+        return redirect(redirect_to)
+
+    requested_ids = {int(i) for i in request.form.getlist("seat_ids") if i.isdigit()}
+    now = datetime.utcnow()
+    checked = 0
+    for s in booking.seats:
+        if s.id in requested_ids and not s.checked_in_at:
+            s.checked_in_at = now
+            checked += 1
+
+    if checked:
+        db.session.commit()
+        flash(f"Checked in {checked} more seat(s) for booking {booking.reference}.", "success")
+    else:
+        flash("Nothing to check in - those seats may already be checked in.", "success")
+
+    return redirect(redirect_to)
+
+
 @admin_bp.route("/checkin/<token>/reset", methods=["POST"])
 @login_required
 def checkin_reset(token):
