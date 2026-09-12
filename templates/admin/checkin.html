@@ -68,26 +68,32 @@
     {% set remaining = others|rejectattr('checked_in_at')|list %}
     <div style="margin-top:22px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1);">
       <p style="color:var(--grey-light); font-size:0.85rem; margin:0 0 8px;">
-        Also in this booking ({{ booking.seats|length }} seats total):
+        Also in this booking ({{ booking.seats|length }} seats total){% if booking.payment_status == 'paid' and remaining %} &mdash; untick anyone not here yet{% endif %}:
       </p>
-      <table style="width:100%; margin-bottom:12px;">
-        {% for s in others %}
-        <tr>
-          <td>{{ s.label }}</td>
-          <td>{% if s.checked_in_at %}<span class="badge paid">checked in {{ s.checked_in_at.strftime("%H:%M") }}</span>{% else %}<span class="badge pending">not checked in</span>{% endif %}</td>
-        </tr>
-        {% endfor %}
-      </table>
-      {% if booking.payment_status == 'paid' and remaining %}
       <form method="post" action="{{ url_for('admin.checkin_remaining', reference=booking.reference) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="next" value="{{ url_for('admin.checkin', token=seat.checkin_token) }}">
-        {% for s in remaining %}
-        <input type="hidden" name="seat_ids" value="{{ s.id }}">
-        {% endfor %}
-        <button type="submit" class="btn small">Check in remaining {{ remaining|length }} seat(s)</button>
+        <table style="width:100%; margin-bottom:12px;">
+          {% for s in others %}
+          <tr>
+            <td>
+              {% if booking.payment_status == 'paid' and not s.checked_in_at %}
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" name="seat_ids" value="{{ s.id }}" checked>
+                {{ s.label }}
+              </label>
+              {% else %}
+              {{ s.label }}
+              {% endif %}
+            </td>
+            <td>{% if s.checked_in_at %}<span class="badge paid">checked in {{ s.checked_in_at.strftime("%H:%M") }}</span>{% else %}<span class="badge pending">not checked in</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% if booking.payment_status == 'paid' and remaining %}
+        <button type="submit" class="btn small">Check in selected seat(s)</button>
+        {% endif %}
       </form>
-      {% endif %}
     </div>
     {% endif %}
   </div>
