@@ -70,6 +70,9 @@ def list_seats():
 @api_bp.route("/hold", methods=["POST"])
 @limiter.limit("20 per minute")
 def hold():
+    if datetime.utcnow() >= current_app.config["BOOKING_CLOSES_AT_UTC"]:
+        return jsonify({"ok": False, "error": current_app.config["BOOKING_CLOSED_MESSAGE"]}), 403
+
     sweep_expired_holds()
     sid = session["sid"]
     data = request.get_json(force=True) or {}

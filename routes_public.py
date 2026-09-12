@@ -43,12 +43,14 @@ def index():
     # seat_config.FIRST_BATCH_LABELS) - the promo copy should reflect
     # however many are actually released, not the eventual full capacity.
     opened_seats = Seat.query.filter(Seat.status != SeatStatus.DISABLED).count()
+    booking_closed = datetime.utcnow() >= cfg["BOOKING_CLOSES_AT_UTC"]
     return render_template(
         "index.html",
         cfg=cfg,
         stripe_publishable_key=cfg["STRIPE_PUBLISHABLE_KEY"],
         seat_price=cfg["SEAT_PRICE_EUR"],
         hold_minutes=cfg["SEAT_HOLD_MINUTES"],
+        booking_closed=booking_closed,
         opened_seats=opened_seats,
     )
 

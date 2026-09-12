@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -166,6 +166,17 @@ class Config:
     # parties. Turn off later (set to "false" in config.env + reload) once
     # more sections are open and this no longer matters as much.
     REQUIRE_ADJACENT_SEATS = _env_bool("REQUIRE_ADJACENT_SEATS", True)
+
+    # Online booking closes for the night at 19:30 Malta time (CEST,
+    # UTC+2 in September) on event day - after that, any seats still
+    # unsold are handed out in person at the event, first come first
+    # served, rather than online. Naive UTC to match datetime.utcnow()
+    # used everywhere else in this codebase.
+    BOOKING_CLOSES_AT_UTC = datetime(2026, 9, 12, 17, 30)
+    BOOKING_CLOSED_MESSAGE = (
+        "Booking Closed. Remaining empty seats can be booked and placed "
+        "during the event on a first come, first served basis."
+    )
 
     # Policy text shown on the booking page, in confirmation emails, and on
     # the PDF ticket. Edit here to change the wording everywhere at once.
